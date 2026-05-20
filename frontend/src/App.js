@@ -115,7 +115,7 @@ function App() {
                 </ProtectedRoute>
               } />
             <Route path="dashboard" element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['trabajador']} redirectTo="/mi-perfil">
                 <DashboardPage />
               </ProtectedRoute>
             } />

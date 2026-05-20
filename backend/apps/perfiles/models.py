@@ -29,6 +29,7 @@ class PerfilTrabajador(models.Model):
     # Información profesional
     titulo_profesional = models.CharField(max_length=120, blank=True, default='', verbose_name='Título Profesional')
     categoria = models.CharField(max_length=50, choices=CATEGORIAS, verbose_name='Categoría')
+    categorias = models.JSONField(default=list, verbose_name='Categorías')
     especialidades = models.JSONField(default=list, verbose_name='Especialidades')
     experiencia_anos = models.PositiveIntegerField(default=0, verbose_name='Años de Experiencia')
     descripcion = models.TextField(blank=True, verbose_name='Descripción')

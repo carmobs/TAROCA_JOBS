@@ -36,7 +36,7 @@ export default function JobDetailPage() {
   // Mutation para aceptar cotización
   const acceptQuotationMutation = useMutation({
     mutationFn: async (quotationId) => {
-      const response = await api.put(`/trabajos/cotizaciones/${quotationId}/aceptar/`);
+      const response = await api.post(`/trabajos/cotizaciones/${quotationId}/aceptar/`);
       return response.data;
     },
     onSuccess: (data, variables) => {

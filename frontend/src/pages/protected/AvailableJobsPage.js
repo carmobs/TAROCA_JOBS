@@ -23,29 +23,71 @@ export default function AvailableJobsPage() {
   });
   const [showFilters, setShowFilters] = useState(false);
 
+  const normalizeList = (data) => {
+    if (Array.isArray(data)) {
+      return data;
+    }
+
+    if (Array.isArray(data?.results)) {
+      return data.results;
+    }
+
+    return [];
+  };
+
   // Fetch perfil del trabajador para saber su categoría
   const { data: workerProfile } = useQuery({
     queryKey: ['worker-profile', user?.id],
     queryFn: async () => {
-      const response = await api.get(`/perfiles/trabajadores/?usuario=${user?.id}`);
-      const profiles = response.data || [];
-      return profiles.length > 0 ? profiles[0] : null;
+      try {
+        const response = await api.get('/perfiles/trabajadores/mi_perfil/');
+        return response.data || null;
+      } catch (error) {
+        if (error.response?.status === 404) {
+          return null;
+        }
+        throw error;
+      }
     },
+    enabled: Boolean(user?.id),
   });
 
-  // Fetch solicitudes abiertas
-  const { data: jobsData = [], isLoading } = useQuery({
-    queryKey: ['available-jobs', filters],
-    queryFn: async () => {
-      const params = new URLSearchParams();
-      if (filters.categoria) params.append('categoria', filters.categoria);
-      if (filters.municipio) params.append('municipio', filters.municipio);
-      if (filters.prioridad) params.append('prioridad', filters.prioridad);
+  const workerCategories = useMemo(() => {
+    if (Array.isArray(workerProfile?.categorias) && workerProfile.categorias.length) {
+      return workerProfile.categorias;
+    }
+    if (workerProfile?.categoria) {
+      return [workerProfile.categoria];
+    }
+    return [];
+  }, [workerProfile]);
 
-      const response = await api.get(`/trabajos/trabajos/?${params.toString()}`);
-      // Filtrar solo trabajos abiertos
-      return (response.data || []).filter(job => job.estado === 'abierto');
+  // Fetch solicitudes abiertas
+  const workerCategoriesKey = workerCategories.join('|');
+  const { data: jobsData = [], isLoading } = useQuery({
+    queryKey: ['available-jobs', workerCategoriesKey, filters],
+    queryFn: async () => {
+      const response = await api.get('/trabajos/trabajos/');
+      const estadosAbiertos = ['abierto', 'abierta', 'activa'];
+      const normalized = normalizeList(response.data);
+
+      let filtered = normalized.filter(job => estadosAbiertos.includes(job.estado));
+      if (workerCategories.length) {
+        filtered = filtered.filter(job => workerCategories.includes(job.categoria));
+      }
+      if (filters.categoria) {
+        filtered = filtered.filter(job => job.categoria === filters.categoria);
+      }
+      if (filters.municipio) {
+        filtered = filtered.filter(job => job.municipio === filters.municipio);
+      }
+      if (filters.prioridad) {
+        filtered = filtered.filter(job => job.prioridad === filters.prioridad);
+      }
+
+      return filtered;
     },
+    enabled: Boolean(workerProfile),
   });
 
   // Fetch categorías para los filtros
@@ -85,6 +127,9 @@ export default function AvailableJobsPage() {
 
   const categoriasParaMostrar = categoriesData?.length ? categoriesData : defaultCategories;
   const municipiosParaMostrar = municipiosData?.length ? municipiosData : defaultMunicipios;
+  const categoriasFiltradas = workerCategories.length
+    ? categoriasParaMostrar.filter(c => workerCategories.includes(c.id))
+    : categoriasParaMostrar;
 
   const hasActiveFilters = Boolean(filters.categoria || filters.municipio || filters.prioridad);
 
@@ -120,7 +165,7 @@ export default function AvailableJobsPage() {
           <h2 className="text-xl font-bold text-yellow-900 mb-2">Completa tu perfil primero</h2>
           <p className="text-yellow-700 mb-6">Necesitas registrarte como trabajador para ver las solicitudes disponibles</p>
           <button
-            onClick={() => navigate('/worker-register')}
+            onClick={() => navigate('/register-worker')}
             className="px-6 py-2 bg-yellow-600 text-white font-semibold rounded-lg hover:bg-yellow-700"
           >
             Registrarme como trabajador
@@ -185,7 +230,7 @@ export default function AvailableJobsPage() {
                   onChange={(e) => setFilters(prev => ({ ...prev, categoria: e.target.value }))}
                   options={[
                     { value: '', label: 'Todas' },
-                    ...categoriasParaMostrar.map(c => ({ value: c.id, label: c.nombre }))
+                    ...categoriasFiltradas.map(c => ({ value: c.id, label: c.nombre }))
                   ]}
                   placeholder="Todas"
                 />

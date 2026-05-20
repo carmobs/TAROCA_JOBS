@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
-import CustomSelect from '../../components/common/CustomSelect';
 import { toast } from 'react-toastify';
 import {
   FiArrowLeft,
@@ -41,7 +40,7 @@ const modalidadOptions = [
 
 const defaultForm = {
   titulo_profesional: '',
-  categoria: '',
+  categorias: [],
   especialidades: '',
   experiencia_anos: '',
   descripcion: '',
@@ -86,7 +85,11 @@ export default function MyProfilePage() {
 
     setFormData({
       titulo_profesional: workerProfile.titulo_profesional || '',
-      categoria: workerProfile.categoria || '',
+      categorias: Array.isArray(workerProfile.categorias) && workerProfile.categorias.length
+        ? workerProfile.categorias
+        : workerProfile.categoria
+          ? [workerProfile.categoria]
+          : [],
       especialidades: toCsv(workerProfile.especialidades),
       experiencia_anos: workerProfile.experiencia_anos || '',
       descripcion: workerProfile.descripcion || '',
@@ -166,6 +169,15 @@ export default function MyProfilePage() {
     }));
   };
 
+  const toggleCategoria = (value) => {
+    setFormData((prev) => ({
+      ...prev,
+      categorias: prev.categorias.includes(value)
+        ? prev.categorias.filter((item) => item !== value)
+        : [...prev.categorias, value],
+    }));
+  };
+
   const toggleZona = (value) => {
     setFormData((prev) => ({
       ...prev,
@@ -196,9 +208,15 @@ export default function MyProfilePage() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    if (!formData.categorias.length) {
+      toast.error('Selecciona al menos una categoría');
+      return;
+    }
+
     const payload = {
       titulo_profesional: formData.titulo_profesional,
-      categoria: formData.categoria,
+      categoria: formData.categorias[0] || '',
+      categorias: formData.categorias,
       especialidades: formData.especialidades.split(',').map((item) => item.trim()).filter(Boolean),
       experiencia_anos: Number(formData.experiencia_anos || 0),
       descripcion: formData.descripcion,
@@ -326,14 +344,22 @@ export default function MyProfilePage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Categoría</label>
-                    <CustomSelect
-                      name="categoria"
-                      value={formData.categoria}
-                      onChange={handleChange}
-                      options={categoriaOptions}
-                      placeholder="Selecciona una categoría"
-                    />
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Categorías que ofreces
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {categoriaOptions.map((categoria) => (
+                        <label key={categoria.value} className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={formData.categorias.includes(categoria.value)}
+                            onChange={() => toggleCategoria(categoria.value)}
+                            className="w-4 h-4 text-red-500 rounded"
+                          />
+                          <span className="text-gray-700">{categoria.label}</span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
 
                   <div>

@@ -13,7 +13,7 @@ class CotizacionSerializer(serializers.ModelSerializer):
             'id', 'trabajo', 'trabajador', 'precio', 'descripcion', 'fecha_estimada',
             'tiempo_estimado_horas', 'vigencia_horas', 'incluye_materiales', 'estado', 'created_at'
         ]
-        read_only_fields = ['id', 'created_at']
+        read_only_fields = ['id', 'trabajo', 'estado', 'created_at']
 
 
 class TrabajoListSerializer(serializers.ModelSerializer):

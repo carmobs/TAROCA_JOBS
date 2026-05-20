@@ -20,11 +20,26 @@ class PerfilTrabajadorSerializer(serializers.ModelSerializer):
     
     usuario = UsuarioSerializer(read_only=True)
     portafolios = PortafolioSerializer(many=True, read_only=True)
+
+    def validate(self, attrs):
+        categorias = attrs.get('categorias')
+        categoria = attrs.get('categoria')
+
+        if categorias is not None:
+            categorias = [item for item in categorias if item]
+            if not categorias:
+                raise serializers.ValidationError({'categorias': 'Selecciona al menos una categoría'})
+            attrs['categorias'] = categorias
+            attrs['categoria'] = categorias[0]
+        elif categoria:
+            attrs['categorias'] = [categoria]
+
+        return attrs
     
     class Meta:
         model = PerfilTrabajador
         fields = [
-            'id', 'usuario', 'titulo_profesional', 'categoria', 'especialidades', 'experiencia_anos',
+            'id', 'usuario', 'titulo_profesional', 'categoria', 'categorias', 'especialidades', 'experiencia_anos',
             'descripcion', 'modalidades_servicio', 'tiempo_respuesta_horas', 'certificaciones',
             'idiomas', 'herramientas', 'ubicacion', 'zona_servicio', 'tarifa_hora',
             'tarifa_minima', 'calificacion_promedio', 'total_trabajos',
@@ -47,7 +62,7 @@ class PerfilTrabajadorListSerializer(serializers.ModelSerializer):
     class Meta:
         model = PerfilTrabajador
         fields = [
-            'id', 'nombre', 'email', 'titulo_profesional', 'categoria', 'ubicacion',
+            'id', 'nombre', 'email', 'titulo_profesional', 'categoria', 'categorias', 'ubicacion',
             'modalidades_servicio', 'tiempo_respuesta_horas', 'calificacion_promedio',
             'total_resenas', 'tarifa_hora', 'disponible'
         ]

@@ -27,17 +27,7 @@ const Navbar = () => {
 
   const handleProfileClick = () => {
     setUserMenuOpen(false);
-    if (user?.rol === 'trabajador') {
-      navigate('/mi-perfil');
-      return;
-    }
-
-    if (user?.rol === 'cliente') {
-      navigate('/register-worker');
-      return;
-    }
-
-    navigate('/dashboard');
+    navigate('/mi-perfil');
   };
 
   return (
@@ -113,8 +103,16 @@ const Navbar = () => {
                         className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
                       >
                         <FaUser />
-                        <span>{user?.rol === 'trabajador' ? 'Mi Perfil' : 'Convertirme en trabajador'}</span>
+                        <span>Mi Perfil</span>
                       </button>
+                      <Link
+                        to="/mis-solicitudes"
+                        className="block px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        <FaTachometerAlt />
+                        <span>Mis Solicitudes</span>
+                      </Link>
                       {user?.rol === 'trabajador' && (
                         <>
                           <Link
@@ -187,10 +185,14 @@ const Navbar = () => {
                 <Link to="/dashboard" className="block py-2 text-gray-700">Dashboard</Link>
                 <Link to="/chat" className="block py-2 text-gray-700">Mensajes</Link>
                 <button onClick={handleProfileClick} className="block w-full text-left py-2 text-gray-700">
-                  {user?.rol === 'trabajador' ? 'Mi Perfil' : 'Convertirme en trabajador'}
+                  Mi Perfil
                 </button>
+                <Link to="/mis-solicitudes" className="block py-2 text-gray-700">Mis Solicitudes</Link>
                 {user?.rol === 'trabajador' && (
-                  <Link to="/solicitudes-disponibles" className="block py-2 text-gray-700">Solicitudes disponibles</Link>
+                  <>
+                    <Link to="/solicitudes-disponibles" className="block py-2 text-gray-700">Solicitudes disponibles</Link>
+                    <Link to="/mis-propuestas" className="block py-2 text-gray-700">Mis propuestas</Link>
+                  </>
                 )}
                 <button onClick={handleLogout} className="block w-full text-left py-2 text-red-600">
                   Cerrar Sesión

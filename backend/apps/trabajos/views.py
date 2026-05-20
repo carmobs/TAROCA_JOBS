@@ -2,6 +2,7 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db.models import Q
+from django.db import connection
 from .models import Trabajo, Cotizacion
 from .serializers import (
     TrabajoListSerializer,
@@ -19,10 +20,23 @@ class TrabajoViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         user = self.request.user
-        # Mostrar trabajos del cliente + trabajos abiertos para trabajadores
-        return Trabajo.objects.filter(
-            Q(cliente=user) | Q(estado='abierto')
-        ).distinct()
+        # Mostrar trabajos del cliente + trabajos abiertos para trabajadores (solo su categoría)
+        base_query = Q(cliente=user)
+        estados_abiertos = ['abierto', 'abierta', 'activa']
+        perfil = PerfilTrabajador.objects.filter(usuario=user).first()
+        if perfil:
+            categorias = perfil.categorias or []
+            if not categorias and perfil.categoria:
+                categorias = [perfil.categoria]
+
+            if categorias:
+                open_jobs_query = Q(estado__in=estados_abiertos, categoria__in=categorias)
+            else:
+                open_jobs_query = Q(pk__in=[])
+
+            return Trabajo.objects.filter(base_query | open_jobs_query).distinct()
+
+        return Trabajo.objects.filter(base_query).distinct()
     
     def get_serializer_class(self):
         if self.action == 'create':
@@ -35,7 +49,15 @@ class TrabajoViewSet(viewsets.ModelViewSet):
         trabajo = serializer.save()
         
         # Crear notificación para los trabajadores en esta categoría
-        trabajadores = PerfilTrabajador.objects.filter(categoria=trabajo.categoria)
+        if connection.vendor == 'sqlite':
+            trabajadores = [
+                perfil for perfil in PerfilTrabajador.objects.all()
+                if perfil.categoria == trabajo.categoria or (perfil.categorias and trabajo.categoria in perfil.categorias)
+            ]
+        else:
+            trabajadores = PerfilTrabajador.objects.filter(
+                Q(categoria=trabajo.categoria) | Q(categorias__contains=[trabajo.categoria])
+            )
         for perfil in trabajadores:
             Notificacion.objects.create(
                 usuario=perfil.usuario,
@@ -59,7 +81,12 @@ class TrabajoViewSet(viewsets.ModelViewSet):
         if not perfil:
             return Response({'error': 'No eres un trabajador registrado'}, status=status.HTTP_400_BAD_REQUEST)
         
-        trabajos = Trabajo.objects.filter(categoria=perfil.categoria, estado='abierto')
+        estados_abiertos = ['abierto', 'abierta', 'activa']
+        categorias = perfil.categorias or []
+        if not categorias and perfil.categoria:
+            categorias = [perfil.categoria]
+
+        trabajos = Trabajo.objects.filter(categoria__in=categorias, estado__in=estados_abiertos)
         serializer = self.get_serializer(trabajos, many=True)
         return Response(serializer.data)
     

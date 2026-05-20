@@ -7,6 +7,9 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.exceptions import PermissionDenied
+from django.db import connection
+from django.db.models import Q
+from django.db.models import Q
 from .models import PerfilTrabajador, Portafolio
 from .serializers import (
     PerfilTrabajadorSerializer,
@@ -69,7 +72,16 @@ class PerfilTrabajadorViewSet(viewsets.ModelViewSet):
         ubicacion = self.request.query_params.get('ubicacion')
         
         if categoria:
-            queryset = queryset.filter(categoria=categoria)
+            if connection.vendor == 'sqlite':
+                matching_ids = [
+                    perfil.id for perfil in queryset
+                    if perfil.categoria == categoria or (perfil.categorias and categoria in perfil.categorias)
+                ]
+                queryset = queryset.filter(id__in=matching_ids)
+            else:
+                queryset = queryset.filter(
+                    Q(categoria=categoria) | Q(categorias__contains=[categoria])
+                )
         if disponible:
             queryset = queryset.filter(disponible=disponible.lower() == 'true')
         if ubicacion:

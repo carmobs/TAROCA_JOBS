@@ -7,24 +7,42 @@ import { FiBriefcase, FiPlus, FiFilter } from 'react-icons/fi';
 export default function MyJobsListPage() {
   const navigate = useNavigate();
   const [filterStatus, setFilterStatus] = useState('todas');
+  const openStates = ['abierto', 'abierta', 'activa'];
+  const assignedStates = ['asignado', 'asignada'];
+  const closedStates = ['cerrada', 'completado', 'cancelado'];
+
+  const normalizeList = (data) => {
+    if (Array.isArray(data)) return data;
+    if (Array.isArray(data?.results)) return data.results;
+    return [];
+  };
 
   // Fetch trabajos del usuario
   const { data: jobsData = [], isLoading } = useQuery({
     queryKey: ['my-jobs', filterStatus],
     queryFn: async () => {
       const response = await api.get('/trabajos/trabajos/');
-      const jobs = response.data || [];
-      
+      const jobs = normalizeList(response.data);
+
       if (filterStatus === 'todas') return jobs;
-      return jobs.filter(j => j.estado === filterStatus);
+      if (filterStatus === 'abierta') {
+        return jobs.filter(j => openStates.includes(j.estado));
+      }
+      if (filterStatus === 'asignada') {
+        return jobs.filter(j => assignedStates.includes(j.estado));
+      }
+      if (filterStatus === 'cerrada') {
+        return jobs.filter(j => closedStates.includes(j.estado));
+      }
+      return jobs;
     },
   });
 
   const stats = {
     total: jobsData.length,
-    abiertas: jobsData.filter(j => j.estado === 'abierta').length,
-    asignadas: jobsData.filter(j => j.estado === 'asignada').length,
-    cerradas: jobsData.filter(j => j.estado === 'cerrada').length,
+    abiertas: jobsData.filter(j => openStates.includes(j.estado)).length,
+    asignadas: jobsData.filter(j => assignedStates.includes(j.estado)).length,
+    cerradas: jobsData.filter(j => closedStates.includes(j.estado)).length,
   };
 
   return (
@@ -147,8 +165,8 @@ export default function MyJobsListPage() {
                     <div className="flex items-center gap-3 mb-2">
                       <h3 className="text-lg font-bold text-gray-900">{job.titulo}</h3>
                       <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        job.estado === 'abierta' ? 'bg-blue-100 text-blue-700' :
-                        job.estado === 'asignada' ? 'bg-green-100 text-green-700' :
+                        openStates.includes(job.estado) ? 'bg-blue-100 text-blue-700' :
+                        assignedStates.includes(job.estado) ? 'bg-green-100 text-green-700' :
                         'bg-gray-100 text-gray-700'
                       }`}>
                         {job.estado.toUpperCase()}
@@ -179,7 +197,7 @@ export default function MyJobsListPage() {
                   <div>
                     <p className="text-xs font-semibold text-gray-500">CREADA</p>
                     <p className="font-medium">
-                      {new Date(job.creada_en).toLocaleDateString('es-ES')}
+                      {new Date(job.created_at).toLocaleDateString('es-ES')}
                     </p>
                   </div>
                 </div>

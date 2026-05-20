@@ -37,7 +37,7 @@ export default function SendQuotePage() {
     },
     onSuccess: () => {
       toast.success('✅ Propuesta enviada exitosamente');
-      navigate(`/mis-solicitudes`);
+      navigate(`/mis-propuestas`);
     },
     onError: (error) => {
       console.error('Error:', error);

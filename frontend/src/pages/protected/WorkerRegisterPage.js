@@ -47,7 +47,7 @@ export default function WorkerRegisterPage() {
 
       // Paso 2: Información profesional
       titulo_profesional: '',
-      categoria: '',
+      categorias: parsedData?.categorias || [],
       especialidades: [],
       experiencia_anos: '',
       descripcion: '',
@@ -85,6 +85,15 @@ export default function WorkerRegisterPage() {
       especialidades: prev.especialidades.includes(especialidad)
         ? prev.especialidades.filter(e => e !== especialidad)
         : [...prev.especialidades, especialidad]
+    }));
+  };
+
+  const handleCategoriaToggle = (categoria) => {
+    setFormData(prev => ({
+      ...prev,
+      categorias: prev.categorias.includes(categoria)
+        ? prev.categorias.filter(item => item !== categoria)
+        : [...prev.categorias, categoria]
     }));
   };
 
@@ -150,7 +159,7 @@ export default function WorkerRegisterPage() {
       case 1:
         return formData.nombre && formData.apellido && formData.email && formData.telefono;
       case 2:
-        return formData.titulo_profesional && formData.categoria && formData.experiencia_anos && formData.descripcion && formData.modalidades_servicio.length > 0;
+        return formData.titulo_profesional && formData.categorias.length > 0 && formData.experiencia_anos && formData.descripcion && formData.modalidades_servicio.length > 0;
       case 3:
         return formData.tarifa_hora && formData.tarifa_minima;
       case 4:
@@ -167,7 +176,8 @@ export default function WorkerRegisterPage() {
     try {
       const submitData = {
         titulo_profesional: formData.titulo_profesional,
-        categoria: formData.categoria,
+        categoria: formData.categorias[0] || '',
+        categorias: formData.categorias,
         especialidades: formData.especialidades,
         experiencia_anos: formData.experiencia_anos,
         descripcion: formData.descripcion,
@@ -188,13 +198,23 @@ export default function WorkerRegisterPage() {
         zona_servicio: formData.zona_servicio,
       };
 
-      if (isAuthenticated && user?.rol !== 'trabajador') {
-        const roleResult = await updateUserProfile({ rol: 'trabajador' });
-        if (!roleResult.success) {
-          setIsSubmitting(false);
-          return;
+        if (isAuthenticated) {
+          const profileUpdatePayload = {
+            nombre: formData.nombre,
+            apellido: formData.apellido,
+            telefono: formData.telefono,
+          };
+
+          if (user?.rol !== 'trabajador') {
+            profileUpdatePayload.rol = 'trabajador';
+          }
+
+          const roleResult = await updateUserProfile(profileUpdatePayload);
+          if (!roleResult.success) {
+            setIsSubmitting(false);
+            return;
+          }
         }
-      }
 
       const profile = await createProfileMutation.mutateAsync(submitData);
 
@@ -291,7 +311,6 @@ export default function WorkerRegisterPage() {
                   value={formData.nombre}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
-                  readOnly={isExistingUser}
                   required
                 />
               </div>
@@ -305,7 +324,6 @@ export default function WorkerRegisterPage() {
                   value={formData.apellido}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
-                  readOnly={isExistingUser}
                   required
                 />
               </div>
@@ -336,11 +354,10 @@ export default function WorkerRegisterPage() {
                 value={formData.telefono}
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
-                readOnly={isExistingUser}
-                required
-              />
+                  required
+                />
+              </div>
             </div>
-          </div>
         )}
 
         {/* PASO 2: Información Profesional */}
@@ -364,16 +381,22 @@ export default function WorkerRegisterPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-red-600 mb-2">
-                  Categoría Principal *
-                </label>
-              <CustomSelect
-                name="categoria"
-                value={formData.categoria}
-                onChange={handleChange}
-                options={categorias.map(c => ({ value: c.value, label: c.label }))}
-                placeholder="Selecciona una categoría"
-              />
+              <label className="block text-sm font-medium text-red-600 mb-3">
+                Categorías que ofreces *
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {categorias.map((categoria) => (
+                  <label key={categoria.value} className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.categorias.includes(categoria.value)}
+                      onChange={() => handleCategoriaToggle(categoria.value)}
+                      className="w-4 h-4 text-primary-500 rounded"
+                    />
+                    <span className="text-gray-700">{categoria.label}</span>
+                  </label>
+                ))}
+              </div>
             </div>
 
             <div>

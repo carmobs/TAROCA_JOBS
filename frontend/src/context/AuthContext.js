@@ -59,7 +59,8 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
       
       toast.success(`¡Bienvenido, ${userData.nombre}!`);
-      navigate('/dashboard');
+      const targetRoute = userData?.rol === 'trabajador' ? '/dashboard' : '/mi-perfil';
+      navigate(targetRoute);
       
       return { success: true };
     } catch (error) {
@@ -85,7 +86,8 @@ export const AuthProvider = ({ children }) => {
 
       toast.success('¡Cuenta creada exitosamente!');
       if (!options.skipNavigate) {
-        navigate('/dashboard');
+        const targetRoute = newUser?.rol === 'trabajador' ? '/dashboard' : '/mi-perfil';
+        navigate(targetRoute);
       }
 
       return { success: true };

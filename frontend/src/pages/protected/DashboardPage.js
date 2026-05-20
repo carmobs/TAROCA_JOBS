@@ -28,11 +28,22 @@ export default function DashboardPage() {
 
   // Fetch trabajos del usuario
   const { data: jobsData = [] } = useQuery({
-    queryKey: ['my-jobs'],
+    queryKey: ['my-jobs', user?.rol],
     queryFn: async () => {
-      const response = await api.get('/trabajos/trabajos/');
-      return normalizeList(response.data);
+      const endpoint = user?.rol === 'trabajador'
+        ? '/trabajos/trabajos/solicitudes_abiertas/'
+        : '/trabajos/trabajos/';
+      try {
+        const response = await api.get(endpoint);
+        return normalizeList(response.data);
+      } catch (error) {
+        if (error.response?.status === 400 || error.response?.status === 404) {
+          return [];
+        }
+        throw error;
+      }
     },
+    enabled: Boolean(user?.rol),
   });
 
   // Fetch conversaciones
@@ -44,8 +55,11 @@ export default function DashboardPage() {
     },
   });
 
-  const activeJobs = jobsData.filter(j => j.estado === 'abierta').length;
-  const assignedJobs = jobsData.filter(j => j.estado === 'asignada').length;
+  const openStates = ['abierto', 'abierta', 'activa'];
+  const assignedStates = ['asignado', 'asignada'];
+
+  const activeJobs = jobsData.filter(j => openStates.includes(j.estado)).length;
+  const assignedJobs = jobsData.filter(j => assignedStates.includes(j.estado)).length;
 
   return (
     <div className="bg-gray-50 min-h-screen py-8">
@@ -165,8 +179,8 @@ export default function DashboardPage() {
                           📍 {job.municipio}
                         </span>
                         <span className={`font-semibold ${
-                          job.estado === 'abierta' ? 'text-blue-600' :
-                          job.estado === 'asignada' ? 'text-green-600' :
+                          openStates.includes(job.estado) ? 'text-blue-600' :
+                          assignedStates.includes(job.estado) ? 'text-green-600' :
                           'text-gray-600'
                         }`}>
                           {job.estado.toUpperCase()}
