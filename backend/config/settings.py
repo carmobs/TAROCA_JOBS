@@ -78,27 +78,19 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 ASGI_APPLICATION = 'config.asgi.application'
 
-# Database - Configuración temporal con SQLite (no requiere instalación adicional)
-# Para producción, cambiar a PostgreSQL descomentando la sección de abajo
+# Database - PostgreSQL local sin Docker
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config('DB_NAME', default='trabajadores_db'),
+        'USER': config('DB_USER', default='postgres'),
+        'PASSWORD': config('DB_PASSWORD', default='postgres_password_2025'),
+        'HOST': config('DB_HOST', default='localhost'),
+        'PORT': config('DB_PORT', default='5432', cast=int),
+        'CONN_MAX_AGE': config('DB_CONN_MAX_AGE', default=60, cast=int),
+        'ATOMIC_REQUESTS': True,
     }
 }
-
-# PostgreSQL Configuration (descomentar cuando esté instalado)
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': config('DB_NAME', default='trabajadores_db'),
-#         'USER': config('DB_USER', default='postgres'),
-#         'PASSWORD': config('DB_PASSWORD', default='postgres_password_2025'),
-#         'HOST': config('DB_HOST', default='localhost'),
-#         'PORT': config('DB_PORT', default='5432'),
-#         'ATOMIC_REQUESTS': True,
-#     }
-# }
 
 # MongoDB Configuration (Unstructured Data)
 MONGODB_SETTINGS = {
