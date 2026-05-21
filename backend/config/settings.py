@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
+    'csp',
     'channels',
     'drf_spectacular',
     
@@ -197,6 +198,10 @@ CORS_ALLOWED_ORIGINS += [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
+CSRF_TRUSTED_ORIGINS = config(
+    'CSRF_TRUSTED_ORIGINS',
+    default='http://localhost:3000,http://127.0.0.1:3000'
+).split(',')
 
 # Internationalization
 LANGUAGE_CODE = 'es-mx'
@@ -247,3 +252,30 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 # --- Política de referrer ---
 SECURE_REFERRER_POLICY = 'no-referrer-when-downgrade'
+
+# =============================================================================
+# Content Security Policy (CSP)
+# =============================================================================
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", 'https://fonts.googleapis.com')
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://fonts.gstatic.com')
+CSP_FONT_SRC = ("'self'", 'https://fonts.gstatic.com', 'data:')
+CSP_IMG_SRC = ("'self'", 'data:', 'blob:')
+CSP_CONNECT_SRC = ("'self'", 'http://localhost:8000', 'ws://localhost:8000')
+CSP_FRAME_ANCESTORS = ("'none'",)
+CSP_BASE_URI = ("'self'",)
+CSP_FORM_ACTION = ("'self'",)
+
+# =============================================================================
+# Permission Policy (restringe APIs del navegador)
+# =============================================================================
+PERMISSIONS_POLICY = {
+    'accelerometer': (),
+    'camera': (),
+    'geolocation': ('self',),
+    'gyroscope': (),
+    'magnetometer': (),
+    'microphone': (),
+    'payment': (),
+    'usb': (),
+}
