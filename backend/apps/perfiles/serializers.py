@@ -44,7 +44,7 @@ class PerfilTrabajadorSerializer(serializers.ModelSerializer):
             'idiomas', 'herramientas', 'ubicacion', 'zona_servicio', 'tarifa_hora',
             'tarifa_minima', 'calificacion_promedio', 'total_trabajos',
             'total_resenas', 'disponible', 'horario_disponibilidad',
-            'identidad_verificada', 'domicilio_verificado', 'portafolios',
+            'identidad_verificada', 'domicilio_verificado', 'foto_perfil', 'foto_portada', 'portafolios',
             'created_at', 'updated_at'
         ]
         read_only_fields = [
@@ -64,5 +64,5 @@ class PerfilTrabajadorListSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'nombre', 'email', 'titulo_profesional', 'categoria', 'categorias', 'ubicacion',
             'modalidades_servicio', 'tiempo_respuesta_horas', 'calificacion_promedio',
-            'total_resenas', 'tarifa_hora', 'disponible'
+            'total_resenas', 'tarifa_hora', 'disponible', 'foto_perfil', 'foto_portada'
         ]

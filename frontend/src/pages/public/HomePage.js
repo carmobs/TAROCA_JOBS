@@ -67,7 +67,7 @@ export default function HomePage() {
     { id: 'plomeria', nombre: 'Plomería' },
     { id: 'electricidad', nombre: 'Electricidad' },
     { id: 'carpinteria', nombre: 'Carpintería' },
-    { id: 'albanileria', nombre: 'Albañilería' },
+    { id: 'albañileria', nombre: 'Albañilería' },
     { id: 'pintura', nombre: 'Pintura' },
     { id: 'jardineria', nombre: 'Jardinería' },
     { id: 'limpieza', nombre: 'Limpieza' },

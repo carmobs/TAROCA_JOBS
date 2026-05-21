@@ -15,6 +15,13 @@ export default function SearchPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
+  const apiRoot = (process.env.REACT_APP_API_URL || 'http://localhost:8000/api').replace(/\/api\/?$/, '');
+  const buildMediaUrl = (path) => {
+    if (!path) return '';
+    if (path.startsWith('http://') || path.startsWith('https://')) return path;
+    return `${apiRoot}${path.startsWith('/') ? '' : '/'}${path}`;
+  };
+
   const normalizeList = (data) => {
     if (Array.isArray(data)) {
       return data;
@@ -77,7 +84,7 @@ export default function SearchPage() {
     { id: 'plomeria', nombre: 'Plomería' },
     { id: 'electricidad', nombre: 'Electricidad' },
     { id: 'carpinteria', nombre: 'Carpintería' },
-    { id: 'albanileria', nombre: 'Albañilería' },
+    { id: 'albañileria', nombre: 'Albañilería' },
     { id: 'pintura', nombre: 'Pintura' },
     { id: 'jardineria', nombre: 'Jardinería' },
     { id: 'limpieza', nombre: 'Limpieza' },
@@ -294,7 +301,7 @@ export default function SearchPage() {
                     <div className="h-32 bg-gradient-to-br from-red-100 to-blue-100 flex items-center justify-center">
                       {worker.foto_perfil ? (
                         <img
-                          src={worker.foto_perfil}
+                          src={buildMediaUrl(worker.foto_perfil)}
                           alt={worker.nombre}
                           className="w-full h-full object-cover"
                         />

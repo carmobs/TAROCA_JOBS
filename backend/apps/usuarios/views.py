@@ -5,6 +5,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from .models import Usuario
 from .serializers import (
     UsuarioSerializer,
@@ -43,7 +44,7 @@ class UsuarioViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
     
-    @action(detail=False, methods=['put', 'patch'])
+    @action(detail=False, methods=['put', 'patch'], parser_classes=[MultiPartParser, FormParser, JSONParser])
     def update_profile(self, request):
         """Actualizar perfil del usuario actual"""
         serializer = UsuarioUpdateSerializer(

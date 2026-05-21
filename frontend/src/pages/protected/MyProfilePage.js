@@ -18,7 +18,7 @@ const categoriaOptions = [
   { value: 'plomeria', label: 'Plomería' },
   { value: 'electricidad', label: 'Electricidad' },
   { value: 'carpinteria', label: 'Carpintería' },
-  { value: 'albanileria', label: 'Albañilería' },
+  { value: 'albañileria', label: 'Albañilería' },
   { value: 'pintura', label: 'Pintura' },
   { value: 'jardineria', label: 'Jardinería' },
   { value: 'limpieza', label: 'Limpieza' },
@@ -61,6 +61,13 @@ function toCsv(value) {
   return Array.isArray(value) ? value.join(', ') : '';
 }
 
+function getMediaUrl(path) {
+  if (!path) return null;
+  if (path.startsWith('http')) return path;
+  const base = (process.env.REACT_APP_API_URL || 'http://localhost:8000/api').replace(/\/api\/?$/, '');
+  return `${base}${path}`;
+}
+
 export default function MyProfilePage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -68,6 +75,11 @@ export default function MyProfilePage() {
   const [formData, setFormData] = useState(defaultForm);
   const [portfolioItems, setPortfolioItems] = useState([]);
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [fotoPerfilFile, setFotoPerfilFile] = useState(null);
+  const [fotoPerfilPreview, setFotoPerfilPreview] = useState(null);
+  const [fotoPortadaFile, setFotoPortadaFile] = useState(null);
+  const [fotoPortadaPreview, setFotoPortadaPreview] = useState(null);
+  const [uploadingFotos, setUploadingFotos] = useState(false);
 
   const isWorker = user?.rol === 'trabajador';
 
@@ -107,7 +119,48 @@ export default function MyProfilePage() {
     });
 
     setPortfolioItems(workerProfile.portafolios || []);
+    setFotoPerfilPreview(workerProfile.foto_perfil ? getMediaUrl(workerProfile.foto_perfil) : null);
+    setFotoPortadaPreview(workerProfile.foto_portada ? getMediaUrl(workerProfile.foto_portada) : null);
   }, [workerProfile]);
+
+  const handleFotoChange = (setterFile, setterPreview) => (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      toast.error('Solo se permiten imágenes');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('La imagen no debe superar 5MB');
+      return;
+    }
+    setterFile(file);
+    setterPreview(URL.createObjectURL(file));
+  };
+
+  const uploadFotos = async () => {
+    if (!workerProfile?.id) return;
+    if (!fotoPerfilFile && !fotoPortadaFile) return;
+    setUploadingFotos(true);
+    try {
+      const formData = new FormData();
+      if (fotoPerfilFile) formData.append('foto_perfil', fotoPerfilFile);
+      if (fotoPortadaFile) formData.append('foto_portada', fotoPortadaFile);
+
+      await api.patch(`/perfiles/trabajadores/${workerProfile.id}/`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      toast.success('Imágenes actualizadas');
+      setFotoPerfilFile(null);
+      setFotoPortadaFile(null);
+      await queryClient.invalidateQueries({ queryKey: ['my-worker-profile'] });
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'No se pudieron subir las imágenes');
+    } finally {
+      setUploadingFotos(false);
+    }
+  };
 
   const updateProfileMutation = useMutation({
     mutationFn: async (payload) => {
@@ -322,6 +375,62 @@ export default function MyProfilePage() {
           <p className="text-gray-600 mt-2">
             Configura tu perfil, tus zonas de servicio y tu portafolio. Los clientes solo pueden ver tu portafolio público, pero no modificarlo.
           </p>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-6 space-y-6">
+          <div>
+            <p className="font-semibold text-gray-900 mb-2">Foto de portada</p>
+            <div className="h-40 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
+              {fotoPortadaPreview ? (
+                <img src={fotoPortadaPreview} alt="Portada" className="w-full h-full object-cover" />
+              ) : workerProfile?.foto_portada ? (
+                <img src={getMediaUrl(workerProfile.foto_portada)} alt="Portada" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-sm text-gray-500">Sin portada</span>
+              )}
+            </div>
+            <div className="mt-3 flex gap-2">
+              <label className="px-4 py-1.5 bg-gray-100 text-gray-700 rounded-lg cursor-pointer hover:bg-gray-200 text-sm font-medium">
+                Seleccionar portada
+                <input type="file" accept="image/*" onChange={handleFotoChange(setFotoPortadaFile, setFotoPortadaPreview)} className="hidden" />
+              </label>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0">
+              {fotoPerfilPreview ? (
+                <img src={fotoPerfilPreview} alt="Foto de perfil" className="w-full h-full object-cover" />
+              ) : workerProfile?.foto_perfil ? (
+                <img src={getMediaUrl(workerProfile.foto_perfil)} alt={workerProfile?.usuario?.nombre || 'Perfil'} className="w-full h-full object-cover" />
+              ) : (
+                <FiUser className="w-8 h-8 text-gray-400" />
+              )}
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900">Foto de perfil</p>
+              <p className="text-sm text-gray-600 mb-2">JPG, PNG (máx. 5MB)</p>
+              <div className="flex gap-2">
+                <label className="px-4 py-1.5 bg-gray-100 text-gray-700 rounded-lg cursor-pointer hover:bg-gray-200 text-sm font-medium">
+                  Seleccionar foto
+                  <input type="file" accept="image/*" onChange={handleFotoChange(setFotoPerfilFile, setFotoPerfilPreview)} className="hidden" />
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {(fotoPerfilFile || fotoPortadaFile) && (
+            <div>
+              <button
+                type="button"
+                onClick={uploadFotos}
+                disabled={uploadingFotos}
+                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm font-medium disabled:opacity-50"
+              >
+                {uploadingFotos ? 'Subiendo...' : 'Guardar imágenes'}
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

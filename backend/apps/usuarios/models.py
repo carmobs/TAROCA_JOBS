@@ -53,6 +53,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     nombre = models.CharField(max_length=100, verbose_name='Nombre')
     apellido = models.CharField(max_length=100, verbose_name='Apellido')
     telefono = models.CharField(max_length=15, blank=True, verbose_name='Teléfono')
+    foto_perfil = models.ImageField(upload_to='perfiles/', null=True, blank=True, verbose_name='Foto de Perfil')
     
     # Rol y permisos
     rol = models.CharField(max_length=20, choices=ROLES, default='cliente', verbose_name='Rol')

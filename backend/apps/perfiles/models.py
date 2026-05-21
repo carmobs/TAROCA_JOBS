@@ -80,6 +80,10 @@ class PerfilTrabajador(models.Model):
     # Verificación
     identidad_verificada = models.BooleanField(default=False, verbose_name='Identidad Verificada')
     domicilio_verificado = models.BooleanField(default=False, verbose_name='Domicilio Verificado')
+
+    # Imagenes del perfil
+    foto_perfil = models.ImageField(upload_to='perfiles/fotos/', null=True, blank=True, verbose_name='Foto de Perfil')
+    foto_portada = models.ImageField(upload_to='perfiles/portadas/', null=True, blank=True, verbose_name='Foto de Portada')
     
     # Metadata
     created_at = models.DateTimeField(auto_now_add=True)

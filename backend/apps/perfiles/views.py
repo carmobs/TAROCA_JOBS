@@ -9,7 +9,6 @@ from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.exceptions import PermissionDenied
 from django.db import connection
 from django.db.models import Q
-from django.db.models import Q
 from .models import PerfilTrabajador, Portafolio
 from .serializers import (
     PerfilTrabajadorSerializer,
@@ -24,6 +23,7 @@ class PerfilTrabajadorViewSet(viewsets.ModelViewSet):
     queryset = PerfilTrabajador.objects.select_related('usuario').prefetch_related('portafolios')
     serializer_class = PerfilTrabajadorSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
     
     def get_serializer_class(self):
         """Seleccionar serializer según la acción"""

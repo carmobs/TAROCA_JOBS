@@ -12,6 +12,13 @@ const Navbar = () => {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const navigate = useNavigate();
 
+  const getMediaUrl = (path) => {
+    if (!path) return null;
+    if (path.startsWith('http')) return path;
+    const base = (process.env.REACT_APP_API_URL || 'http://localhost:8000/api').replace(/\/api\/?$/, '');
+    return `${base}${path}`;
+  };
+
   const handleLogout = () => {
     logout();
     setUserMenuOpen(false);
@@ -81,8 +88,12 @@ const Navbar = () => {
                     onClick={() => setUserMenuOpen(!userMenuOpen)}
                     className="flex items-center space-x-2 text-gray-700 hover:text-red-500 transition"
                   >
-                    <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
-                      <FaUser className="text-white text-sm" />
+                    <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center overflow-hidden">
+                      {user?.foto_perfil ? (
+                        <img src={getMediaUrl(user.foto_perfil)} alt={user?.nombre} className="w-full h-full object-cover" />
+                      ) : (
+                        <FaUser className="text-white text-sm" />
+                      )}
                     </div>
                     <span className="font-medium">{user?.nombre}</span>
                   </button>
@@ -90,12 +101,12 @@ const Navbar = () => {
                   {userMenuOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2">
                       <Link
-                        to="/dashboard"
+                        to={user?.rol === 'trabajador' ? '/dashboard' : '/register-worker'}
                         className="block px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
                         onClick={() => setUserMenuOpen(false)}
                       >
                         <FaTachometerAlt />
-                        <span>Dashboard</span>
+                        <span>{user?.rol === 'trabajador' ? 'Dashboard' : 'Convertirme en trabajador'}</span>
                       </Link>
                       <button
                         type="button"
@@ -182,7 +193,7 @@ const Navbar = () => {
             
             {isAuthenticated ? (
               <div className="space-y-2">
-                <Link to="/dashboard" className="block py-2 text-gray-700">Dashboard</Link>
+                <Link to={user?.rol === 'trabajador' ? '/dashboard' : '/register-worker'} className="block py-2 text-gray-700">{user?.rol === 'trabajador' ? 'Dashboard' : 'Convertirme en trabajador'}</Link>
                 <Link to="/chat" className="block py-2 text-gray-700">Mensajes</Link>
                 <button onClick={handleProfileClick} className="block w-full text-left py-2 text-gray-700">
                   Mi Perfil

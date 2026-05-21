@@ -14,7 +14,7 @@ class UsuarioSerializer(serializers.ModelSerializer):
         model = Usuario
         fields = [
             'id', 'email', 'nombre', 'apellido', 'nombre_completo',
-            'telefono', 'rol', 'is_verificado', 'fecha_registro',
+            'telefono', 'foto_perfil', 'rol', 'is_verificado', 'fecha_registro',
             'ultimo_acceso'
         ]
         read_only_fields = ['id', 'fecha_registro', 'ultimo_acceso']
@@ -56,7 +56,7 @@ class UsuarioUpdateSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Usuario
-        fields = ['nombre', 'apellido', 'telefono', 'rol']
+        fields = ['nombre', 'apellido', 'telefono', 'foto_perfil', 'rol']
 
 
 class UsuarioListSerializer(serializers.ModelSerializer):
@@ -64,4 +64,4 @@ class UsuarioListSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Usuario
-        fields = ['id', 'nombre', 'apellido', 'email', 'rol', 'is_verificado']
+        fields = ['id', 'nombre', 'apellido', 'email', 'foto_perfil', 'rol', 'is_verificado']

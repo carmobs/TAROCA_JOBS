@@ -324,12 +324,7 @@ function QuoteCard({ quote, navigate, getHoursRemaining, getVigenciaColor }) {
           </>
         )}
         {quote.estado === 'pendiente' && (
-          <button
-            onClick={() => navigate(`/mis-solicitudes/${quote.trabajo?.id}`)}
-            className="flex-1 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition flex items-center justify-center gap-2"
-          >
-            <FiTrendingUp className="w-4 h-4" /> Ver propuestas de otros
-          </button>
+          <p className="text-sm text-gray-500 italic">Esperando respuesta del cliente...</p>
         )}
         {quote.estado === 'rechazada' && (
           <button

@@ -20,7 +20,6 @@ class TrabajoViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         user = self.request.user
-        # Mostrar trabajos del cliente + trabajos abiertos para trabajadores (solo su categoría)
         base_query = Q(cliente=user)
         estados_abiertos = ['abierto', 'abierta', 'activa']
         perfil = PerfilTrabajador.objects.filter(usuario=user).first()
@@ -30,7 +29,7 @@ class TrabajoViewSet(viewsets.ModelViewSet):
                 categorias = [perfil.categoria]
 
             if categorias:
-                open_jobs_query = Q(estado__in=estados_abiertos, categoria__in=categorias)
+                open_jobs_query = Q(estado__in=estados_abiertos) & Q(categoria__in=categorias)
             else:
                 open_jobs_query = Q(pk__in=[])
 
@@ -202,6 +201,12 @@ class CotizacionViewSet(viewsets.ModelViewSet):
         # Marcar como aceptada
         cotizacion.estado = 'aceptada'
         cotizacion.save()
+        
+        # Actualizar el trabajo: cerrado al aceptar una cotización
+        trabajo = cotizacion.trabajo
+        trabajo.estado = 'completado'
+        trabajo.trabajador = cotizacion.trabajador
+        trabajo.save()
         
         # Opcionalmente: rechazar las otras cotizaciones de este trabajo
         Cotizacion.objects.filter(

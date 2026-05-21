@@ -102,7 +102,15 @@ export default function WorkerPublicProfile() {
         {/* ENCABEZADO */}
         <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
           {/* Portada */}
-          <div className="h-40 bg-gradient-to-br from-red-500 to-red-700"></div>
+          <div className="h-40 bg-gradient-to-br from-red-500 to-red-700">
+            {worker.foto_portada && (
+              <img
+                src={buildMediaUrl(worker.foto_portada)}
+                alt="Portada"
+                className="w-full h-full object-cover"
+              />
+            )}
+          </div>
 
           {/* Info Principal */}
           <div className="px-6 py-8">
@@ -112,7 +120,7 @@ export default function WorkerPublicProfile() {
               <div className="w-32 h-32 rounded-lg bg-gray-200 flex-shrink-0 flex items-center justify-center text-4xl -mt-20 border-4 border-white shadow-md">
                 {worker.foto_perfil ? (
                   <img
-                    src={worker.foto_perfil}
+                    src={buildMediaUrl(worker.foto_perfil)}
                     alt={worker.usuario?.nombre}
                     className="w-full h-full object-cover rounded-lg"
                   />

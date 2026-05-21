@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
 import { toast } from 'react-toastify';
 import {
@@ -14,6 +14,14 @@ import {
 export default function JobDetailPage() {
   const { jobId } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const apiRoot = (process.env.REACT_APP_API_URL || 'http://localhost:8000/api').replace(/\/api\/?$/, '');
+  const buildMediaUrl = (path) => {
+    if (!path) return '';
+    if (path.startsWith('http://') || path.startsWith('https://')) return path;
+    return `${apiRoot}${path.startsWith('/') ? '' : '/'}${path}`;
+  };
 
   // Fetch detalles del trabajo
   const { data: job, isLoading: jobLoading } = useQuery({
@@ -22,6 +30,8 @@ export default function JobDetailPage() {
       const response = await api.get(`/trabajos/trabajos/${jobId}/`);
       return response.data;
     },
+    staleTime: 1000 * 60 * 5,
+    retry: 2,
   });
 
   // Fetch cotizaciones del trabajo
@@ -39,10 +49,10 @@ export default function JobDetailPage() {
       const response = await api.post(`/trabajos/cotizaciones/${quotationId}/aceptar/`);
       return response.data;
     },
-    onSuccess: (data, variables) => {
+    onSuccess: () => {
       toast.success('✅ Cotización aceptada');
-      // variables contains the quotationId passed to mutate()
-      navigate(`/chat`);
+      queryClient.invalidateQueries({ queryKey: ['quotations', jobId] });
+      queryClient.invalidateQueries({ queryKey: ['job', jobId] });
     },
     onError: (error) => {
       toast.error(`❌ Error: ${error.response?.data?.detail || error.message}`);
@@ -89,10 +99,14 @@ export default function JobDetailPage() {
               </p>
             </div>
             <span className={`px-4 py-2 rounded-full font-semibold text-sm ${
-              job.estado === 'abierta'
+              job.estado === 'abierto'
                 ? 'bg-blue-100 text-blue-700'
-                : job.estado === 'asignada'
+                : job.estado === 'completado'
                 ? 'bg-green-100 text-green-700'
+                : job.estado === 'asignado'
+                ? 'bg-green-100 text-green-700'
+                : job.estado === 'cancelado'
+                ? 'bg-red-100 text-red-700'
                 : 'bg-gray-100 text-gray-700'
             }`}>
               {job.estado.toUpperCase()}
@@ -168,7 +182,7 @@ export default function JobDetailPage() {
                       <div className="w-12 h-12 rounded-lg bg-gray-200 flex items-center justify-center text-xl flex-shrink-0">
                         {quotation.trabajador?.foto_perfil ? (
                           <img
-                            src={quotation.trabajador.foto_perfil}
+                            src={buildMediaUrl(quotation.trabajador.foto_perfil)}
                             alt={quotation.trabajador.usuario?.nombre}
                             className="w-full h-full object-cover rounded-lg"
                           />

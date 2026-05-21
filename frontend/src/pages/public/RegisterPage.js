@@ -33,6 +33,20 @@ const RegisterPage = () => {
       alert('Las contraseñas no coinciden');
       return;
     }
+
+    const nameRegex = /[0-9]/;
+    if (nameRegex.test(formData.nombre)) {
+      alert('El nombre no debe contener números');
+      return;
+    }
+    if (nameRegex.test(formData.apellido)) {
+      alert('El apellido no debe contener números');
+      return;
+    }
+    if (formData.telefono && !/^[0-9+\-\s()]+$/.test(formData.telefono)) {
+      alert('El teléfono solo debe contener números');
+      return;
+    }
     
     // Si seleccionó trabajador y ya tiene cuenta, solo actualizamos rol y seguimos con el perfil
     if (formData.rol === 'trabajador') {

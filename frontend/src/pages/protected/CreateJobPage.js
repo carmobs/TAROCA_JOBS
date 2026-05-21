@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
@@ -10,6 +10,7 @@ import CustomSelect from '../../components/common/CustomSelect';
 export default function CreateJobPage() {
   const { workerId } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { isAuthenticated } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -50,7 +51,7 @@ export default function CreateJobPage() {
     { id: 'plomeria', nombre: 'Plomería' },
     { id: 'electricidad', nombre: 'Electricidad' },
     { id: 'carpinteria', nombre: 'Carpintería' },
-    { id: 'albanileria', nombre: 'Albañilería' },
+    { id: 'albañileria', nombre: 'Albañilería' },
     { id: 'pintura', nombre: 'Pintura' },
     { id: 'jardineria', nombre: 'Jardinería' },
     { id: 'limpieza', nombre: 'Limpieza' },
@@ -83,12 +84,16 @@ export default function CreateJobPage() {
     },
     onSuccess: (data) => {
       toast.success('✅ Solicitud creada exitosamente');
-      // Navegar a página de detalles del trabajo donde se verán cotizaciones
+      // Pre-poblar la caché para que JobDetailPage encuentre los datos inmediatamente
+      queryClient.setQueryData(['job', data.id], data);
+      queryClient.invalidateQueries({ queryKey: ['my-jobs'] });
+      queryClient.invalidateQueries({ queryKey: ['available-jobs'] });
       navigate(`/mis-solicitudes/${data.id}`);
     },
     onError: (error) => {
       console.error('Error:', error);
-      toast.error(`❌ Error al crear solicitud: ${error.response?.data?.detail || error.message}`);
+      setIsSubmitting(false);
+      toast.error(`Error al crear solicitud: ${error.response?.data?.detail || error.message}`);
     },
   });
 
@@ -138,14 +143,24 @@ export default function CreateJobPage() {
       toast.error('Selecciona un municipio');
       return;
     }
+    if (formData.fecha_deseada && formData.fecha_deseada < today) {
+      toast.error('La fecha deseada no puede ser anterior a hoy');
+      return;
+    }
+    if (formData.fecha_maxima_respuesta && formData.fecha_maxima_respuesta < today) {
+      toast.error('La fecha máxima de respuesta no puede ser anterior a hoy');
+      return;
+    }
 
     setIsSubmitting(true);
     createJobMutation.mutate({
       ...formData,
       presupuesto_estimado: formData.presupuesto_estimado ? parseFloat(formData.presupuesto_estimado) : null,
     });
-    setIsSubmitting(false);
   };
+
+  // Validación de fechas pasadas
+  const today = new Date().toISOString().split('T')[0];
 
   return (
     <div className="bg-gray-50 min-h-screen py-8">
@@ -351,6 +366,7 @@ export default function CreateJobPage() {
                 name="fecha_deseada"
                 value={formData.fecha_deseada}
                 onChange={handleChange}
+                min={today}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
               />
             </div>
@@ -365,6 +381,7 @@ export default function CreateJobPage() {
                 name="fecha_maxima_respuesta"
                 value={formData.fecha_maxima_respuesta}
                 onChange={handleChange}
+                min={today}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
               />
             </div>

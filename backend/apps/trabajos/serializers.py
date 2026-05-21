@@ -15,6 +15,11 @@ class CotizacionSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'trabajo', 'estado', 'created_at']
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['trabajo'] = TrabajoListSerializer(instance.trabajo).data
+        return data
+
 
 class TrabajoListSerializer(serializers.ModelSerializer):
     cliente = UsuarioSerializer(read_only=True)
@@ -50,10 +55,12 @@ class TrabajoDetailSerializer(serializers.ModelSerializer):
 
 
 class TrabajoCreateSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+    
     class Meta:
         model = Trabajo
         fields = [
-            'titulo', 'descripcion', 'categoria', 'municipio', 'modalidad', 'prioridad',
+            'id', 'titulo', 'descripcion', 'categoria', 'municipio', 'modalidad', 'prioridad',
             'presupuesto_estimado', 'fecha_deseada', 'fecha_maxima_respuesta', 'detalles_adicionales'
         ]
     

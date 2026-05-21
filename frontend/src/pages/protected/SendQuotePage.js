@@ -41,7 +41,18 @@ export default function SendQuotePage() {
     },
     onError: (error) => {
       console.error('Error:', error);
-      toast.error(`❌ Error: ${error.response?.data?.detail || error.message}`);
+      const data = error.response?.data;
+      let message = data?.error || data?.detail;
+      if (!message && data && typeof data === 'object') {
+        const firstKey = Object.keys(data)[0];
+        const firstVal = data[firstKey];
+        if (Array.isArray(firstVal)) {
+          message = `${firstKey}: ${firstVal[0]}`;
+        } else if (firstVal) {
+          message = `${firstKey}: ${firstVal}`;
+        }
+      }
+      toast.error(`❌ Error: ${message || error.message}`);
       setIsSubmitting(false);
     },
   });
@@ -61,18 +72,35 @@ export default function SendQuotePage() {
       toast.error('El precio propuesto es requerido');
       return;
     }
+    if (parseFloat(formData.precio) <= 0) {
+      toast.error('El precio debe ser mayor a 0');
+      return;
+    }
     if (!formData.descripcion.trim()) {
       toast.error('Incluye detalles sobre tu propuesta');
       return;
     }
+    const today = new Date().toISOString().split('T')[0];
+    if (formData.fecha_estimada && formData.fecha_estimada < today) {
+      toast.error('La fecha estimada no puede ser anterior a hoy');
+      return;
+    }
+
+    const payload = {
+      precio: parseFloat(formData.precio),
+      descripcion: formData.descripcion.trim(),
+      incluye_materiales: formData.incluye_materiales,
+      vigencia_horas: parseInt(formData.vigencia_horas),
+    };
+    if (formData.fecha_estimada) {
+      payload.fecha_estimada = formData.fecha_estimada;
+    }
+    if (formData.tiempo_estimado_horas) {
+      payload.tiempo_estimado_horas = parseInt(formData.tiempo_estimado_horas);
+    }
 
     setIsSubmitting(true);
-    sendQuoteMutation.mutate({
-      ...formData,
-      precio: parseFloat(formData.precio),
-      tiempo_estimado_horas: formData.tiempo_estimado_horas ? parseInt(formData.tiempo_estimado_horas) : null,
-      vigencia_horas: parseInt(formData.vigencia_horas),
-    });
+    sendQuoteMutation.mutate(payload);
   };
 
   if (jobLoading) {
@@ -226,6 +254,7 @@ export default function SendQuotePage() {
                 name="fecha_estimada"
                 value={formData.fecha_estimada}
                 onChange={handleChange}
+                min={new Date().toISOString().split('T')[0]}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
               />
             </div>

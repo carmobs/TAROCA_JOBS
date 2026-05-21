@@ -62,6 +62,12 @@ export default function AvailableJobsPage() {
     return [];
   }, [workerProfile]);
 
+  const matchesWorkerCategory = (jobCategoria) => {
+    if (!jobCategoria || !workerCategories.length) return false;
+    const normalizedJob = jobCategoria.toLowerCase();
+    return workerCategories.some(cat => cat.toLowerCase() === normalizedJob);
+  };
+
   // Fetch solicitudes abiertas
   const workerCategoriesKey = workerCategories.join('|');
   const { data: jobsData = [], isLoading } = useQuery({
@@ -73,7 +79,7 @@ export default function AvailableJobsPage() {
 
       let filtered = normalized.filter(job => estadosAbiertos.includes(job.estado));
       if (workerCategories.length) {
-        filtered = filtered.filter(job => workerCategories.includes(job.categoria));
+        filtered = filtered.filter(job => matchesWorkerCategory(job.categoria));
       }
       if (filters.categoria) {
         filtered = filtered.filter(job => job.categoria === filters.categoria);
@@ -117,7 +123,7 @@ export default function AvailableJobsPage() {
     { id: 'plomeria', nombre: 'Plomería' },
     { id: 'electricidad', nombre: 'Electricidad' },
     { id: 'carpinteria', nombre: 'Carpintería' },
-    { id: 'albanileria', nombre: 'Albañilería' },
+    { id: 'albañileria', nombre: 'Albañilería' },
     { id: 'pintura', nombre: 'Pintura' },
     { id: 'jardineria', nombre: 'Jardinería' },
     { id: 'limpieza', nombre: 'Limpieza' },
