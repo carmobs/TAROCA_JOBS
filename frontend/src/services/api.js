@@ -1,6 +1,6 @@
 import axios from "axios";
 import { toast } from "react-toastify";
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000/api";
+const API_URL = process.env.REACT_APP_API_URL || "/api";
 // Función auxiliar para obtener CSRF token de las cookies
 function getCSRFToken() {
   const name = "csrftoken";
