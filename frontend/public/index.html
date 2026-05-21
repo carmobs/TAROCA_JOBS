@@ -1,5 +1,25 @@
 <!DOCTYPE html>
 <html lang="es">
+  <!-- Self-XSS Warning -->
+    <script>
+      console.log(
+        '%c⚠️  ATENCIÓN  %c|  %cAuto-XSS',
+        'font-size:24px; color:red;',
+        '',
+        'font-size:18px; color:darkred;'
+      );
+      console.log(
+        '%cEsta es una función del navegador destinada a desarrolladores. Si alguien te ha dicho que copies y pegues algo aquí para activar una función de Taroca Jobs o hackear la cuenta de otra persona, se trata de un ataque de %cauto-XSS%c y podrías dar acceso a tu cuenta a un atacante.',
+        'font-size:14px; color:#333;',
+        'font-weight:bold; color:red;',
+        ''
+      );
+      console.log(
+        '%cMás información: https://es.wikipedia.org/wiki/Self-XSS',
+        'font-size:12px; color:#666;'
+      );
+    </script>
+    
   <head>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />

@@ -225,14 +225,25 @@ SPECTACULAR_SETTINGS = {
     'SERVE_INCLUDE_SCHEMA': False,
 }
 
-# Security Settings for Production
-if not DEBUG:
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-    SECURE_BROWSER_XSS_FILTER = True
-    SECURE_CONTENT_TYPE_NOSNIFF = True
-    X_FRAME_OPTIONS = 'DENY'
-    SECURE_HSTS_SECONDS = 31536000
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
+# =============================================================================
+# SECURITY SETTINGS — Cookies, HTTPS, Headers
+# =============================================================================
+# --- Cookies seguras (Secure, HttpOnly, SameSite=Strict) ---
+SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Strict'
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'Strict'
+SESSION_COOKIE_AGE = 86400
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+# --- HTTPS y HSTS ---
+SECURE_SSL_REDIRECT = True
+SECURE_HSTS_SECONDS = 31536000
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+# --- Protección XSS y MIME sniffing ---
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+# --- Política de referrer ---
+SECURE_REFERRER_POLICY = 'no-referrer-when-downgrade'
