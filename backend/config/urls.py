@@ -25,6 +25,17 @@ urlpatterns = [
     path('api/suscripciones/', include('apps.suscripciones.urls')),
     path('api/notificaciones/', include('apps.notificaciones.urls')),
     path('api/trabajos/', include('apps.trabajos.urls')),
+
+    # Compatibilidad con clientes desplegados que consumen las rutas sin /api
+    path('auth/', include('apps.autenticacion.urls')),
+    path('usuarios/', include('apps.usuarios.urls')),
+    path('perfiles/', include('apps.perfiles.urls')),
+    path('busqueda/', include('apps.busqueda.urls')),
+    path('chat/', include('apps.chat.urls')),
+    path('resenas/', include('apps.resenas.urls')),
+    path('suscripciones/', include('apps.suscripciones.urls')),
+    path('notificaciones/', include('apps.notificaciones.urls')),
+    path('trabajos/', include('apps.trabajos.urls')),
 ]
 
 # Servir archivos estáticos y media en desarrollo

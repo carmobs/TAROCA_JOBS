@@ -1,6 +1,15 @@
 import axios from "axios";
 import { toast } from "react-toastify";
-const API_URL = process.env.REACT_APP_API_URL || "/api";
+function normalizeApiBaseUrl(rawUrl) {
+  if (!rawUrl) {
+    return "/api";
+  }
+
+  const trimmedUrl = rawUrl.replace(/\/+$/, "");
+  return trimmedUrl.endsWith("/api") ? trimmedUrl : `${trimmedUrl}/api`;
+}
+
+const API_URL = normalizeApiBaseUrl(process.env.REACT_APP_API_URL);
 // Función auxiliar para obtener CSRF token de las cookies
 function getCSRFToken() {
   const name = "csrftoken";
