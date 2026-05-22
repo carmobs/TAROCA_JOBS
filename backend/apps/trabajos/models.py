@@ -2,6 +2,7 @@ from django.db import models
 from apps.usuarios.models import Usuario
 from apps.perfiles.models import PerfilTrabajador
 from apps.seguridad.fields import EncryptedTextField
+from apps.seguridad.mixins import ModeloConFirma
 
 class Trabajo(models.Model):
     """Modelo para solicitudes de trabajo/servicio"""
@@ -67,8 +68,12 @@ class Trabajo(models.Model):
         return f"{self.titulo} - {self.cliente.nombre_completo}"
 
 
-class Cotizacion(models.Model):
-    """Modelo para cotizaciones de trabajadores"""
+class Cotizacion(models.Model, ModeloConFirma):
+    """Modelo para cotizaciones de trabajadores
+    
+    Incluye firmas digitales para verificar autenticidad e integridad
+    de las propuestas económicas.
+    """
     
     ESTADO_CHOICES = [
         ('pendiente', 'Pendiente de respuesta'),
@@ -93,6 +98,14 @@ class Cotizacion(models.Model):
     
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='pendiente')
     
+    # Campos de firma digital para verificar autenticidad
+    firma = models.TextField(blank=True, verbose_name='Firma Digital')
+    hash_integridad = models.CharField(
+        max_length=64,
+        blank=True,
+        verbose_name='Hash de Integridad SHA-256'
+    )
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -102,3 +115,22 @@ class Cotizacion(models.Model):
     
     def __str__(self):
         return f"Propuesta de {self.trabajador.usuario.nombre} para {self.trabajo.titulo}"
+    
+    def get_datos_para_firmar(self) -> str:
+        """
+        Obtener datos críticos de la cotización para firmar.
+        
+        Incluye solo los campos que definen la propuesta económica,
+        no incluye estado (que puede cambiar después de ser aceptada).
+        """
+        import json
+        datos = {
+            'trabajo_id': self.trabajo.id,
+            'trabajador_id': self.trabajador.id,
+            'precio': str(self.precio),
+            'fecha_estimada': str(self.fecha_estimada) if self.fecha_estimada else None,
+            'tiempo_estimado_horas': self.tiempo_estimado_horas,
+            'vigencia_horas': self.vigencia_horas,
+            'incluye_materiales': self.incluye_materiales,
+        }
+        return json.dumps(datos, sort_keys=True)

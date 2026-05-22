@@ -5,9 +5,10 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from apps.usuarios.models import Usuario
 from apps.perfiles.models import PerfilTrabajador
+from apps.seguridad.mixins import ModeloConFirma
 
 
-class Resena(models.Model):
+class Resena(models.Model, ModeloConFirma):
     """
     Reseña de cliente hacia trabajador
     """
@@ -37,6 +38,14 @@ class Resena(models.Model):
     # Verificación (solo si hubo transacción real)
     verificada = models.BooleanField(default=False, verbose_name='Verificada')
     
+    # Campos de firma digital para verificar autenticidad de reseña
+    firma = models.TextField(blank=True, verbose_name='Firma Digital')
+    hash_integridad = models.CharField(
+        max_length=64,
+        blank=True,
+        verbose_name='Hash de Integridad SHA-256'
+    )
+    
     # Respuesta del trabajador
     respuesta = models.TextField(blank=True, verbose_name='Respuesta')
     fecha_respuesta = models.DateTimeField(null=True, blank=True, verbose_name='Fecha de Respuesta')
@@ -62,6 +71,24 @@ class Resena(models.Model):
     
     def __str__(self):
         return f"Reseña de {self.cliente} para {self.trabajador.usuario.nombre_completo}"
+    
+    def get_datos_para_firmar(self) -> str:
+        """
+        Obtener datos críticos de la reseña para firmar.
+        
+        Incluye calificación y comentario que definen la reseña.
+        La respuesta del trabajador no se incluye (es posterior).
+        """
+        import json
+        datos = {
+            'cliente_id': self.cliente.id,
+            'trabajador_id': self.trabajador.id,
+            'calificacion': self.calificacion,
+            'titulo': self.titulo,
+            'comentario': self.comentario,
+            'verificada': self.verificada,
+        }
+        return json.dumps(datos, sort_keys=True)
     
     def save(self, *args, **kwargs):
         """Al guardar, actualizar calificación del trabajador"""

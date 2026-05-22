@@ -105,6 +105,23 @@ La plataforma implementa **cifrado simétrico AES-128 con Fernet** para proteger
 
 **Ver documentación completa:** [ENCRYPTION_GUIDE.md](./ENCRYPTION_GUIDE.md)
 
+## Seguridad: Firmas Digitales
+
+La plataforma implementa **firmas digitales HMAC-SHA256** para verificar autenticidad:
+
+**Modelos firmados:**
+- 📋 Cotizaciones (propuestas económicas)
+- ⭐ Reseñas (calificaciones de trabajadores)
+
+**Características:**
+- ✓ Autenticidad verificable (HMAC-SHA256)
+- ✓ Integridad de datos garantizada
+- ✓ Prevención de replay attacks (timestamp incluido)
+- ✓ Prevención de timing attacks (comparación segura)
+- ✓ Generación automática al guardar
+
+**Ver documentación completa:** [FIRMAS_DIGITALES_GUIDE.md](./FIRMAS_DIGITALES_GUIDE.md)
+
 ## Testing
 
 ```bash
