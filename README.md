@@ -54,8 +54,9 @@ npm start
 
 ## Variables de entorno del backend
 
-Usa `backend/.env.example` como base y crea `backend/.env` con valores reales para PostgreSQL:
+Usa `backend/.env.example` como base y crea `backend/.env` con valores reales para PostgreSQL y encriptación:
 
+### Variables Requeridas:
 - `DB_NAME`
 - `DB_USER`
 - `DB_PASSWORD`
@@ -65,6 +66,18 @@ Usa `backend/.env.example` como base y crea `backend/.env` con valores reales pa
 - `JWT_SECRET_KEY`
 - `CORS_ALLOWED_ORIGINS`
 
+### Variables de Seguridad (REQUERIDAS):
+- `ENCRYPTION_KEY` - Clave para cifrado simétrico de datos sensibles (mínimo 32 caracteres)
+
+**Generar ENCRYPTION_KEY:**
+```bash
+# Opción 1 - OpenSSL
+openssl rand -hex 32
+
+# Opción 2 - Python
+python -c "import secrets; print(secrets.token_hex(32))"
+```
+
 ## Flujo funcional
 
 1. Iniciar PostgreSQL.
@@ -72,6 +85,25 @@ Usa `backend/.env.example` como base y crea `backend/.env` con valores reales pa
 3. Levantar frontend.
 4. Probar login y registro.
 5. Probar búsqueda, perfil, solicitud y chat.
+
+## Seguridad: Cifrado Simétrico
+
+La plataforma implementa **cifrado simétrico AES-128 con Fernet** para proteger datos sensibles:
+
+**Campos cifrados:**
+- 💬 Mensajes de chat
+- 🔔 Notificaciones
+- 📝 Descripción de trabajos y cotizaciones
+- 📱 Teléfono de usuarios
+
+**Características:**
+- ✓ Cifrado automático al guardar
+- ✓ Descifrado automático al recuperar
+- ✓ Autenticación HMAC-SHA256 integrada
+- ✓ Prevención de ataques de timing
+- ✓ IV aleatorio por operación
+
+**Ver documentación completa:** [ENCRYPTION_GUIDE.md](./ENCRYPTION_GUIDE.md)
 
 ## Testing
 

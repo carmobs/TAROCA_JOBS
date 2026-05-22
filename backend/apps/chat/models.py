@@ -4,6 +4,7 @@ Los mensajes se almacenarán en MongoDB para mejor rendimiento
 """
 from django.db import models
 from apps.usuarios.models import Usuario
+from apps.seguridad.fields import EncryptedTextField
 
 
 class Conversacion(models.Model):
@@ -66,7 +67,8 @@ class Mensaje(models.Model):
     )
     remitente = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     
-    contenido = models.TextField(verbose_name='Contenido')
+    # Campo cifrado con Fernet (AES-128)
+    contenido = EncryptedTextField(verbose_name='Contenido')
     leido = models.BooleanField(default=False, verbose_name='Leído')
     
     # Metadata

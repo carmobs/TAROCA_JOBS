@@ -1,6 +1,7 @@
 from django.db import models
 from apps.usuarios.models import Usuario
 from apps.perfiles.models import PerfilTrabajador
+from apps.seguridad.fields import EncryptedTextField
 
 class Trabajo(models.Model):
     """Modelo para solicitudes de trabajo/servicio"""
@@ -38,7 +39,8 @@ class Trabajo(models.Model):
     
     # Información del trabajo
     titulo = models.CharField(max_length=200)
-    descripcion = models.TextField()
+    # Campo cifrado con Fernet (AES-128)
+    descripcion = EncryptedTextField()
     categoria = models.CharField(max_length=50)
     municipio = models.CharField(max_length=100)
     modalidad = models.CharField(max_length=20, choices=MODALIDAD_CHOICES, default='domicilio')
@@ -48,7 +50,8 @@ class Trabajo(models.Model):
     presupuesto_estimado = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     fecha_deseada = models.DateField(null=True, blank=True)
     fecha_maxima_respuesta = models.DateField(null=True, blank=True)
-    detalles_adicionales = models.TextField(blank=True)
+    # Campo cifrado con Fernet (AES-128)
+    detalles_adicionales = EncryptedTextField(blank=True)
     
     # Estado
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='abierto')
@@ -81,7 +84,8 @@ class Cotizacion(models.Model):
     )
     
     precio = models.DecimalField(max_digits=10, decimal_places=2)
-    descripcion = models.TextField()
+    # Campo cifrado con Fernet (AES-128)
+    descripcion = EncryptedTextField()
     fecha_estimada = models.DateField(null=True, blank=True)
     tiempo_estimado_horas = models.PositiveIntegerField(null=True, blank=True)
     vigencia_horas = models.PositiveIntegerField(default=24)

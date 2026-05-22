@@ -16,6 +16,10 @@ DEBUG = config('DEBUG', default=True, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
+# Encryption Configuration for Symmetric Encryption
+# Usa Fernet (AES-128) para cifrado seguro de datos sensibles
+ENCRYPTION_KEY = config('ENCRYPTION_KEY', default='default-encryption-key-change-in-production-minimum-32-chars')
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',

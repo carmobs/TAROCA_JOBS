@@ -4,6 +4,7 @@ En producción, se almacenarían en MongoDB
 """
 from django.db import models
 from apps.usuarios.models import Usuario
+from apps.seguridad.fields import EncryptedTextField, EncryptedCharField
 
 
 class Notificacion(models.Model):
@@ -26,8 +27,9 @@ class Notificacion(models.Model):
     )
     
     tipo = models.CharField(max_length=20, choices=TIPOS, verbose_name='Tipo')
-    titulo = models.CharField(max_length=200, verbose_name='Título')
-    mensaje = models.TextField(verbose_name='Mensaje')
+    # Campos cifrados con Fernet (AES-128)
+    titulo = EncryptedCharField(max_length=512, verbose_name='Título')
+    mensaje = EncryptedTextField(verbose_name='Mensaje')
     
     # Enlace relacionado (opcional)
     enlace = models.CharField(max_length=500, blank=True, verbose_name='Enlace')

@@ -5,6 +5,7 @@ Sistema de usuarios con roles: Cliente, Trabajador, Admin
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
 from django.utils import timezone
+from apps.seguridad.fields import EncryptedCharField
 
 
 class UsuarioManager(BaseUserManager):
@@ -52,7 +53,8 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True, verbose_name='Correo Electrónico')
     nombre = models.CharField(max_length=100, verbose_name='Nombre')
     apellido = models.CharField(max_length=100, verbose_name='Apellido')
-    telefono = models.CharField(max_length=15, blank=True, verbose_name='Teléfono')
+    # Campo cifrado con Fernet (AES-128)
+    telefono = EncryptedCharField(max_length=512, blank=True, verbose_name='Teléfono')
     foto_perfil = models.ImageField(upload_to='perfiles/', null=True, blank=True, verbose_name='Foto de Perfil')
     
     # Rol y permisos
