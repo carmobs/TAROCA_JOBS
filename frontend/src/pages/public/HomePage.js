@@ -65,8 +65,34 @@ export default function HomePage() {
     'Colima', 'Manzanillo', 'Tecomán', 'Villa de Álvarez', 'Comala',
     'Coquimatlán', 'Cuauhtémoc', 'Ixtlahuacán', 'Minatitlán', 'Armería'
   ];
+  const defaultCategories = [
+    { id: 'plomeria', nombre: 'Plomería' },
+    { id: 'electricidad', nombre: 'Electricidad' },
+    { id: 'carpinteria', nombre: 'Carpintería' },
+    { id: 'albañileria', nombre: 'Albañilería' },
+    { id: 'pintura', nombre: 'Pintura' },
+    { id: 'jardineria', nombre: 'Jardinería' },
+    { id: 'limpieza', nombre: 'Limpieza' },
+    { id: 'mecanica', nombre: 'Mecánica' },
+    { id: 'tecnologia', nombre: 'Tecnología' },
+    { id: 'cerrajeria', nombre: 'Cerrajería' }
+  ];
 
+  const categoriasParaMostrar = categoriesData?.length ? categoriesData : defaultCategories;
+  const municipiosParaMostrar = municipiosData?.length ? municipiosData : defaultMunicipios;
 
+  return (
+    <div className="bg-white min-h-screen">
+
+      {/* HERO SECTION */}
+      <section className="bg-gradient-to-b from-gray-50 to-white py-12 md:py-20">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-10">
+            <span className="inline-block text-xs font-semibold text-red-500 bg-red-50 px-3 py-1 rounded-full mb-4">
+              ⭐ Conecta Taroca Jobs
+            </span>
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 leading-tight">
+              ¿Dónde encuentras trabajadores que están listos para ti?
             </h1>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               Conéctate con profesionales experimentados en tu municipio para tus necesidades.
