@@ -8,7 +8,8 @@ from .views import (
     RegisterView,
     ChangePasswordView,
     logout_view,
-    verify_token_view
+    verify_token_view,
+    GoogleAuthView,
 )
 
 urlpatterns = [
@@ -21,4 +22,7 @@ urlpatterns = [
     # Registro y gestión de cuenta
     path('register/', RegisterView.as_view(), name='register'),
     path('change-password/', ChangePasswordView.as_view(), name='change_password'),
+    
+    # OAuth2
+    path('google/', GoogleAuthView.as_view(), name='google_auth'),
 ]

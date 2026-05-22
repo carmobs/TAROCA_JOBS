@@ -9,6 +9,11 @@ psycopg2-binary==2.9.9
 # Authentication & Security
 djangorestframework-simplejwt==5.3.1
 cryptography==42.0.1
+django-allauth==0.61.1
+dj-rest-auth==5.0.2
+google-auth==2.28.1
+google-auth-oauthlib==1.2.0
+google-auth-httplib2==0.2.0
 
 # WebSockets & Real-time
 channels==4.0.0

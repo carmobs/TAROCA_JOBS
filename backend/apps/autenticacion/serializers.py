@@ -99,3 +99,33 @@ class ChangePasswordSerializer(serializers.Serializer):
         user.set_password(self.validated_data['new_password'])
         user.save()
         return user
+
+
+class UserDetailsSerializer(serializers.ModelSerializer):
+    """Serializer para detalles del usuario (usado por dj-rest-auth)"""
+    
+    nombre_completo = serializers.ReadOnlyField()
+    
+    class Meta:
+        model = Usuario
+        fields = [
+            'id', 'email', 'nombre', 'apellido', 'nombre_completo',
+            'telefono', 'foto_perfil', 'rol', 'is_verificado',
+            'fecha_registro', 'ultimo_acceso'
+        ]
+        read_only_fields = ['id', 'fecha_registro', 'ultimo_acceso']
+
+
+class GoogleAuthTokenSerializer(serializers.Serializer):
+    """Serializer para recibir token de Google y obtener JWT"""
+    
+    id_token = serializers.CharField(required=False)
+    access_token = serializers.CharField(required=False)
+    
+    def validate(self, data):
+        """Validar que se proporcione al menos un token"""
+        if not data.get('id_token') and not data.get('access_token'):
+            raise serializers.ValidationError(
+                "Se requiere id_token o access_token"
+            )
+        return data

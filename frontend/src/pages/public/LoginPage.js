@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import GoogleLoginButton from '../../components/auth/GoogleLoginButton';
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const LoginPage = () => {
@@ -103,6 +104,10 @@ const LoginPage = () => {
               {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
             </button>
           </form>
+
+          <div className="mt-4">
+            <GoogleLoginButton />
+          </div>
 
           {/* Registro */}
           <div className="mt-6 text-center">

@@ -31,10 +31,17 @@ INSTALLED_APPS = [
     
     # Third party apps
     'rest_framework',
+    'rest_framework.authtoken',
     'rest_framework_simplejwt',
     'corsheaders',
     'channels',
     'drf_spectacular',
+    'dj_rest_auth',
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
     
     # Local apps
     'apps.usuarios',
@@ -55,6 +62,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'allauth.account.middleware.AccountMiddleware',  # django-allauth
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -131,6 +139,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Custom User Model
 AUTH_USER_MODEL = 'usuarios.Usuario'
 
+# Django Sites Framework (requerido para django-allauth)
+SITE_ID = 1
+
 # REST Framework Configuration
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -189,6 +200,45 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 # Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# ============================================================================
+# Django-allauth & OAuth2 Configuration
+# ============================================================================
+
+# Allauth Account Configuration
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_ADAPTER = 'apps.autenticacion.adapters.CustomAccountAdapter'
+ACCOUNT_EMAIL_VERIFICATION = 'optional'  # Cambiar a 'mandatory' en producción
+
+# Social Account (OAuth2)
+SOCIALACCOUNT_ADAPTER = 'apps.autenticacion.adapters.CustomSocialAccountAdapter'
+SOCIALACCOUNT_AUTO_SIGNUP = True
+
+# Google OAuth2 Configuration
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+        'VERIFIED_EMAIL': False,
+        'VERSION': 'v2',
+    }
+}
+
+# Google Client ID (opcional) - usado para validar `aud` en id_token
+GOOGLE_CLIENT_ID = config('GOOGLE_CLIENT_ID', default='')
+
+# dj-rest-auth Configuration
+REST_AUTH_SERIALIZERS = {
+    'USER_DETAILS_SERIALIZER': 'apps.autenticacion.serializers.UserDetailsSerializer',
+}
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
