@@ -15,8 +15,8 @@ const Navbar = () => {
   const getMediaUrl = (path) => {
     if (!path) return null;
     if (path.startsWith('http')) return path;
-    const base = (process.env.REACT_APP_API_URL || 'http://localhost:8000/api').replace(/\/api\/?$/, '');
-    return `${base}${path}`;
+    const base = (process.env.REACT_APP_API_URL || '').replace(/\/api\/?$/, '');
+    return `${base}${path.startsWith('/') ? '' : '/'}${path}`;
   };
 
   const handleLogout = () => {

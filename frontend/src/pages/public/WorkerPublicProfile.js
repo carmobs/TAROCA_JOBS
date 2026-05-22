@@ -13,7 +13,7 @@ import {
   FiVideo,
 } from 'react-icons/fi';
 
-const apiRoot = (process.env.REACT_APP_API_URL || 'http://localhost:8000/api').replace(/\/api\/?$/, '');
+const apiRoot = (process.env.REACT_APP_API_URL || '').replace(/\/api\/?$/, '');
 
 function buildMediaUrl(path) {
   if (!path) return '';

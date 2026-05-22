@@ -200,7 +200,7 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 
 # Media files
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = '/var/data/media'
 
 # ============================================================================
 # Django-allauth & OAuth2 Configuration

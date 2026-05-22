@@ -16,7 +16,7 @@ export default function JobDetailPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const apiRoot = (process.env.REACT_APP_API_URL || 'http://localhost:8000/api').replace(/\/api\/?$/, '');
+  const apiRoot = (process.env.REACT_APP_API_URL || '').replace(/\/api\/?$/, '');
   const buildMediaUrl = (path) => {
     if (!path) return '';
     if (path.startsWith('http://') || path.startsWith('https://')) return path;

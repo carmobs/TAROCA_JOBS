@@ -38,7 +38,8 @@ urlpatterns = [
     path('trabajos/', include('apps.trabajos.urls')),
 ]
 
-# Servir archivos estáticos y media en desarrollo
+# Servir media en cualquier entorno para que los uploads sean accesibles
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
