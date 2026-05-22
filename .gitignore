@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 *.so
 .Python
+.venv/
 venv/
 env/
 ENV/
@@ -13,12 +14,31 @@ build/
 *.db
 *.sqlite3
 db.sqlite3
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+
+# Local app settings and secrets
+.env
+.env.*
+.envrc
+.python-version
+backend/.env
+backend/.env.*
+frontend/.env
+frontend/.env.*
+certs/
 
 # Django
 *.log
 local_settings.py
 media/
 staticfiles/
+backend/media/
+backend/staticfiles/
+backend/logs/
 
 # Node
 node_modules/
@@ -26,12 +46,17 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+frontend/node_modules/
 
 # React / Build
 build/
 dist/
 .cache/
 .parcel-cache/
+frontend/build/
+frontend/.cache/
+frontend/coverage/
+frontend/.eslintcache
 
 # Environment variables
 .env
