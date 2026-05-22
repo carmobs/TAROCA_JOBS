@@ -199,8 +199,8 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
 # Media files
-MEDIA_URL = '/media/'
-MEDIA_ROOT = '/var/data/media'
+MEDIA_URL = config('MEDIA_URL', default='/media/')
+MEDIA_ROOT = Path(config('MEDIA_ROOT', default=str(BASE_DIR / 'media') if DEBUG else '/var/data/media'))
 
 # ============================================================================
 # Django-allauth & OAuth2 Configuration
