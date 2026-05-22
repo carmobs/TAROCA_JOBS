@@ -33,15 +33,34 @@ export default function WorkerRegisterPage() {
     'Coquimatlán', 'Cuauhtémoc', 'Ixtlahuacán', 'Minatitlán', 'Armería'
   ];
 
+  const resolveNameParts = (source) => {
+    const rawNombre = source?.nombre || source?.nombre_completo || '';
+    const rawApellido = source?.apellido || '';
+
+    if (rawApellido || !rawNombre.includes(' ')) {
+      return {
+        nombre: rawNombre,
+        apellido: rawApellido,
+      };
+    }
+
+    const [firstName, ...rest] = rawNombre.trim().split(/\s+/);
+    return {
+      nombre: firstName || rawNombre,
+      apellido: rawApellido || rest.join(' '),
+    };
+  };
+
   // Estado del formulario - Cargar datos del sessionStorage si existen
   const [formData, setFormData] = useState(() => {
     const savedData = sessionStorage.getItem('workerRegisterData');
     const parsedData = savedData ? JSON.parse(savedData) : null;
+    const initialNameParts = resolveNameParts(user || parsedData);
     
     return {
       // Paso 1: Datos básicos
-      nombre: user?.nombre || parsedData?.nombre || '',
-      apellido: user?.apellido || parsedData?.apellido || '',
+      nombre: user?.nombre || parsedData?.nombre || initialNameParts.nombre || '',
+      apellido: user?.apellido || parsedData?.apellido || initialNameParts.apellido || '',
       email: user?.email || parsedData?.email || '',
       telefono: user?.telefono || parsedData?.telefono || '',
 
@@ -157,7 +176,7 @@ export default function WorkerRegisterPage() {
   const isStepValid = () => {
     switch(currentStep) {
       case 1:
-        return formData.nombre && formData.apellido && formData.email && formData.telefono;
+        return formData.nombre && formData.apellido && formData.email;
       case 2:
         return formData.titulo_profesional && formData.categorias.length > 0 && formData.experiencia_anos && formData.descripcion && formData.modalidades_servicio.length > 0;
       case 3:
@@ -167,8 +186,8 @@ export default function WorkerRegisterPage() {
       default:
         return false;
     }
-  };
-
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Teléfono (opcional)
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -178,7 +197,6 @@ export default function WorkerRegisterPage() {
         titulo_profesional: formData.titulo_profesional,
         categoria: formData.categorias[0] || '',
         categorias: formData.categorias,
-        especialidades: formData.especialidades,
         experiencia_anos: formData.experiencia_anos,
         descripcion: formData.descripcion,
         modalidades_servicio: formData.modalidades_servicio,

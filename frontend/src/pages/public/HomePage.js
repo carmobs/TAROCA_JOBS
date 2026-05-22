@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 import {
   FiSearch,
@@ -16,8 +17,10 @@ import CustomSelect from '../../components/common/CustomSelect';
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [searchCategory, setSearchCategory] = useState('');
   const [searchLocation, setSearchLocation] = useState('');
+  const showWorkerCta = !user || user.rol !== 'trabajador';
 
   // Fetch categorías
   const { data: categoriesData, isLoading: categoriesLoading } = useQuery({
@@ -63,34 +66,7 @@ export default function HomePage() {
     'Coquimatlán', 'Cuauhtémoc', 'Ixtlahuacán', 'Minatitlán', 'Armería'
   ];
 
-  const defaultCategories = [
-    { id: 'plomeria', nombre: 'Plomería' },
-    { id: 'electricidad', nombre: 'Electricidad' },
-    { id: 'carpinteria', nombre: 'Carpintería' },
-    { id: 'albañileria', nombre: 'Albañilería' },
-    { id: 'pintura', nombre: 'Pintura' },
-    { id: 'jardineria', nombre: 'Jardinería' },
-    { id: 'limpieza', nombre: 'Limpieza' },
-    { id: 'mecanica', nombre: 'Mecánica' },
-    { id: 'tecnologia', nombre: 'Tecnología' },
-    { id: 'cerrajeria', nombre: 'Cerrajería' }
-  ];
 
-  const categoriasParaMostrar = categoriesData?.length ? categoriesData : defaultCategories;
-  const municipiosParaMostrar = municipiosData?.length ? municipiosData : defaultMunicipios;
-
-  return (
-    <div className="bg-white min-h-screen">
-
-      {/* HERO SECTION */}
-      <section className="bg-gradient-to-b from-gray-50 to-white py-12 md:py-20">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-10">
-            <span className="inline-block text-xs font-semibold text-red-500 bg-red-50 px-3 py-1 rounded-full mb-4">
-              ⭐ Conecta Taroca Jobs
-            </span>
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 leading-tight">
-              ¿Dónde encuentras trabajadores que están listos para ti?
             </h1>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               Conéctate con profesionales experimentados en tu municipio para tus necesidades.
@@ -210,21 +186,22 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CALL TO ACTION */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-6">¿Eres trabajador?</h2>
-          <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-            Crea tu perfil, ofrece tus servicios y conecta con clientes locales en Colima.
-          </p>
-          <button
-            onClick={() => navigate('/register?role=trabajador')}
-            className="px-8 py-4 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition"
-          >
-            Crear perfil de trabajador
-          </button>
-        </div>
-      </section>
+      {showWorkerCta && (
+        <section className="py-16 bg-white">
+          <div className="max-w-7xl mx-auto px-6 text-center">
+            <h2 className="text-3xl font-bold text-gray-900 mb-6">¿Eres trabajador?</h2>
+            <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+              Crea tu perfil, ofrece tus servicios y conecta con clientes locales en Colima.
+            </p>
+            <button
+              onClick={() => navigate('/register?role=trabajador')}
+              className="px-8 py-4 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition"
+            >
+              Crear perfil de trabajador
+            </button>
+          </div>
+        </section>
+      )}
 
       {/* FOOTER */}
       <footer className="bg-gray-900 text-white py-12">

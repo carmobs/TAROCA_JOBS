@@ -63,7 +63,7 @@ const GoogleLoginButton = ({ onSuccess, onError }) => {
       if (verifyToken) await verifyToken();
 
       if (onSuccess) onSuccess(data);
-      navigate('/dashboard');
+      navigate(data.user?.rol === 'trabajador' ? '/dashboard' : '/');
     } catch (error) {
       console.error('Error durante login con Google:', error);
       if (onError) onError(error.response?.data || error);

@@ -36,7 +36,9 @@ class RegisterView(generics.CreateAPIView):
             'user': {
                 'id': user.id,
                 'email': user.email,
-                'nombre': user.nombre_completo,
+                'nombre': user.nombre,
+                'apellido': user.apellido,
+                'telefono': user.telefono,
                 'rol': user.rol,
             },
             'tokens': {
@@ -90,7 +92,9 @@ def verify_token_view(request):
         'user': {
             'id': request.user.id,
             'email': request.user.email,
-            'nombre': request.user.nombre_completo,
+            'nombre': request.user.nombre,
+            'apellido': request.user.apellido,
+            'telefono': request.user.telefono,
             'rol': request.user.rol,
             'is_verificado': request.user.is_verificado,
         }
@@ -188,7 +192,9 @@ class GoogleAuthView(generics.GenericAPIView):
                 'user': {
                     'id': user.id,
                     'email': user.email,
-                    'nombre': user.nombre_completo,
+                    'nombre': user.nombre,
+                    'apellido': user.apellido,
+                    'telefono': user.telefono,
                     'rol': user.rol,
                     'is_verificado': user.is_verificado,
                 },

@@ -28,7 +28,9 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         data['user'] = {
             'id': self.user.id,
             'email': self.user.email,
-            'nombre': self.user.nombre_completo,
+            'nombre': self.user.nombre,
+            'apellido': self.user.apellido,
+            'telefono': self.user.telefono,
             'rol': self.user.rol,
             'is_verificado': self.user.is_verificado,
         }
