@@ -6,9 +6,7 @@ module.exports = function(app) {
     createProxyMiddleware({
       target: 'http://localhost:8000',
       changeOrigin: true,
-      pathRewrite: {
-        '^/api': '/api'
-      }
+      pathRewrite: (path) => `/api${path}`,
     })
   );
   
@@ -17,7 +15,8 @@ module.exports = function(app) {
     createProxyMiddleware({
       target: 'ws://localhost:8000',
       ws: true,
-      changeOrigin: true
+      changeOrigin: true,
+      pathRewrite: (path) => `/ws${path}`,
     })
   );
 };

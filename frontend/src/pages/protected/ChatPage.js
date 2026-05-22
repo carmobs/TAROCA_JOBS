@@ -47,8 +47,8 @@ export default function ChatPage() {
     if (!conversacionId || !token) return;
 
     try {
-      const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-      const wsUrl = `${protocol}://${window.location.host}/ws/chat/${conversacionId}/?token=${token}`;
+      const wsBase = (process.env.REACT_APP_WS_URL || 'ws://localhost:8000/ws').replace(/\/$/, '');
+      const wsUrl = `${wsBase}/chat/${conversacionId}/?token=${token}`;
       
       socketRef.current = new WebSocket(wsUrl);
 

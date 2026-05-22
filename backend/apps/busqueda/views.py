@@ -80,6 +80,27 @@ class TodasLasCategoriasView(APIView):
         return Response(result)
 
 
+class MunicipiosDisponiblesView(APIView):
+    """Vista para obtener municipios disponibles"""
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        """Retornar la lista base de municipios de Colima"""
+        municipios = [
+            'Colima',
+            'Manzanillo',
+            'Tecomán',
+            'Villa de Álvarez',
+            'Comala',
+            'Coquimatlán',
+            'Cuauhtémoc',
+            'Ixtlahuacán',
+            'Minatitlán',
+            'Armería',
+        ]
+        return Response(municipios)
+
+
 class RecomendacionesView(APIView):
     """Vista para obtener recomendaciones personalizadas"""
     permission_classes = [IsAuthenticated]

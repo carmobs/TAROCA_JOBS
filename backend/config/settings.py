@@ -1,7 +1,6 @@
 """
 Django settings for Plataforma de Conexión Trabajadores - Colima
 """
-import os
 from pathlib import Path
 from datetime import timedelta
 from decouple import config
@@ -30,7 +29,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
-    'csp',
     'channels',
     'drf_spectacular',
     
@@ -48,7 +46,6 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    # 'whitenoise.middleware.WhiteNoiseMiddleware',  # Descomentar en producción
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -79,7 +76,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 ASGI_APPLICATION = 'config.asgi.application'
 
-# Database - PostgreSQL local sin Docker
+# Database - PostgreSQL local
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -93,14 +90,7 @@ DATABASES = {
     }
 }
 
-# MongoDB Configuration (Unstructured Data)
-MONGODB_SETTINGS = {
-    'URI': config('MONGODB_URI', default='mongodb://mongo:mongo_password_2025@localhost:27017/'),
-    'DB_NAME': config('MONGODB_DB_NAME', default='trabajadores_nosql'),
-}
-
-# Cache Configuration - Usando cache local temporalmente
-# Para producción con Redis, descomentar la sección de abajo
+# Cache local para desarrollo
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
@@ -108,34 +98,12 @@ CACHES = {
     }
 }
 
-# Redis Cache Configuration (descomentar cuando Redis esté instalado)
-# CACHES = {
-#     'default': {
-#         'BACKEND': 'django_redis.cache.RedisCache',
-#         'LOCATION': config('REDIS_URL', default='redis://127.0.0.1:6379/0'),
-#         'OPTIONS': {
-#             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-#         }
-#     }
-# }
-
-# Channels (WebSocket) - Configuración temporal en memoria
-# Para producción con Redis, descomentar la sección de abajo
+# Channels en memoria para desarrollo
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels.layers.InMemoryChannelLayer'
     }
 }
-
-# Channels with Redis (descomentar cuando Redis esté instalado)
-# CHANNEL_LAYERS = {
-#     'default': {
-#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
-#         'CONFIG': {
-#             "hosts": [config('REDIS_URL', default='redis://127.0.0.1:6379/0')],
-#         },
-#     }
-# }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -213,7 +181,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
-# STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'  # Descomentar en producción
 
 # Media files
 MEDIA_URL = '/media/'
@@ -252,30 +219,3 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 # --- Política de referrer ---
 SECURE_REFERRER_POLICY = 'no-referrer-when-downgrade'
-
-# =============================================================================
-# Content Security Policy (CSP)
-# =============================================================================
-CSP_DEFAULT_SRC = ("'self'",)
-CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", 'https://fonts.googleapis.com')
-CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://fonts.gstatic.com')
-CSP_FONT_SRC = ("'self'", 'https://fonts.gstatic.com', 'data:')
-CSP_IMG_SRC = ("'self'", 'data:', 'blob:')
-CSP_CONNECT_SRC = ("'self'", 'http://localhost:8000', 'ws://localhost:8000')
-CSP_FRAME_ANCESTORS = ("'none'",)
-CSP_BASE_URI = ("'self'",)
-CSP_FORM_ACTION = ("'self'",)
-
-# =============================================================================
-# Permission Policy (restringe APIs del navegador)
-# =============================================================================
-PERMISSIONS_POLICY = {
-    'accelerometer': (),
-    'camera': (),
-    'geolocation': ('self',),
-    'gyroscope': (),
-    'magnetometer': (),
-    'microphone': (),
-    'payment': (),
-    'usb': (),
-}
