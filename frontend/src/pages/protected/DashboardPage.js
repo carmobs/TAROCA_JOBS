@@ -32,7 +32,7 @@ export default function DashboardPage() {
     queryFn: async () => {
       const endpoint = user?.rol === 'trabajador'
         ? '/trabajos/trabajos/solicitudes_abiertas/'
-        : '/trabajos/trabajos/';
+        : '/trabajos/trabajos/mis_solicitudes/';
       try {
         const response = await api.get(endpoint);
         return normalizeList(response.data);

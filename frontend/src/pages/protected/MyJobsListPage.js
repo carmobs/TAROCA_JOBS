@@ -21,7 +21,7 @@ export default function MyJobsListPage() {
   const { data: jobsData = [], isLoading } = useQuery({
     queryKey: ['my-jobs', filterStatus],
     queryFn: async () => {
-      const response = await api.get('/trabajos/trabajos/');
+      const response = await api.get('/trabajos/trabajos/mis_solicitudes/');
       const jobs = normalizeList(response.data);
 
       if (filterStatus === 'todas') return jobs;
