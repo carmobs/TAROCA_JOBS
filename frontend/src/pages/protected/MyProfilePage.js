@@ -8,6 +8,7 @@ import {
   FiArrowLeft,
   FiAlertCircle,
   FiCamera,
+  FiX,
   FiUpload,
   FiUser,
   FiBriefcase,
@@ -205,6 +206,34 @@ export default function MyProfilePage() {
     },
   });
 
+  const deletePortfolioMutation = useMutation({
+    mutationFn: async (id) => {
+      await api.delete(`/perfiles/portafolios/${id}/`);
+      return id;
+    },
+    onSuccess: async () => {
+      toast.success('Elemento eliminado del portafolio');
+      await queryClient.invalidateQueries({ queryKey: ['my-worker-profile'] });
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.detail || 'No se pudo eliminar el portafolio');
+    },
+  });
+
+  const updatePortfolioMutation = useMutation({
+    mutationFn: async ({ id, payload }) => {
+      const response = await api.patch(`/perfiles/portafolios/${id}/`, payload);
+      return response.data;
+    },
+    onSuccess: async () => {
+      toast.success('Portafolio actualizado');
+      await queryClient.invalidateQueries({ queryKey: ['my-worker-profile'] });
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.detail || 'No se pudo actualizar el portafolio');
+    },
+  });
+
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
     setFormData((prev) => ({
@@ -256,6 +285,29 @@ export default function MyProfilePage() {
 
   const handleSelectedFileChange = (itemId, field, value) => {
     setSelectedFiles((prev) => prev.map((item) => (item.id === itemId ? { ...item, [field]: value } : item)));
+  };
+
+  const handleSelectedFileRemove = (itemId) => {
+    setSelectedFiles((prev) => prev.filter((item) => item.id !== itemId));
+  };
+
+  const handlePortfolioItemChange = (itemId, field, value) => {
+    setPortfolioItems((prev) => prev.map((item) => (item.id === itemId ? { ...item, [field]: value } : item)));
+  };
+
+  const handlePortfolioItemSave = (item) => {
+    updatePortfolioMutation.mutate({
+      id: item.id,
+      payload: {
+        titulo: item.titulo,
+        descripcion: item.descripcion,
+      },
+    });
+  };
+
+  const handlePortfolioItemDelete = (itemId) => {
+    if (!window.confirm('¿Eliminar este elemento del portafolio?')) return;
+    deletePortfolioMutation.mutate(itemId);
   };
 
   const handleSubmit = async (event) => {
@@ -692,12 +744,93 @@ export default function MyProfilePage() {
               <div className="mt-4 space-y-3">
                 {portfolioItems.map((item) => (
                   <div key={item.id} className="border border-gray-200 rounded-lg p-3">
-                    <p className="font-semibold text-gray-900 text-sm">{item.titulo}</p>
-                    <p className="text-xs text-gray-500 mt-1">{item.descripcion || 'Sin descripción'}</p>
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => handlePortfolioItemDelete(item.id)}
+                        className="absolute top-2 right-2 bg-white/90 hover:bg-white text-gray-600 hover:text-red-500 rounded-full p-1 shadow"
+                        aria-label="Eliminar"
+                        title="Eliminar"
+                      >
+                        <FiX className="w-4 h-4" />
+                      </button>
+                      {item.tipo_media === 'video' ? (
+                        item.archivo ? (
+                          <video
+                            src={getMediaUrl(item.archivo)}
+                            controls
+                            className="w-full h-40 object-cover rounded-lg bg-black"
+                          />
+                        ) : (
+                          <div className="w-full h-40 rounded-lg bg-gray-100 flex items-center justify-center text-sm text-gray-500">
+                            Video sin vista previa
+                          </div>
+                        )
+                      ) : item.archivo ? (
+                        <img
+                          src={getMediaUrl(item.archivo)}
+                          alt={item.titulo}
+                          className="w-full h-40 object-cover rounded-lg"
+                        />
+                      ) : (
+                        <div className="w-full h-40 rounded-lg bg-gray-100 flex items-center justify-center text-sm text-gray-500">
+                          Imagen sin vista previa
+                        </div>
+                      )}
+                    </div>
+                    <div className="mt-3 space-y-2">
+                      <input
+                        value={item.titulo}
+                        onChange={(event) => handlePortfolioItemChange(item.id, 'titulo', event.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        placeholder="Título"
+                      />
+                      <textarea
+                        value={item.descripcion || ''}
+                        onChange={(event) => handlePortfolioItemChange(item.id, 'descripcion', event.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        rows="3"
+                        placeholder="Descripción"
+                      />
+                      <div className="flex justify-end">
+                        <button
+                          type="button"
+                          onClick={() => handlePortfolioItemSave(item)}
+                          disabled={updatePortfolioMutation.isPending}
+                          className="px-4 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium disabled:opacity-50"
+                        >
+                          Guardar cambios
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 ))}
                 {selectedFiles.map((item) => (
                   <div key={item.id} className="border border-red-200 rounded-lg p-3 bg-red-50/40">
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => handleSelectedFileRemove(item.id)}
+                        className="absolute top-2 right-2 bg-white/90 hover:bg-white text-gray-600 hover:text-red-500 rounded-full p-1 shadow"
+                        aria-label="Quitar"
+                        title="Quitar"
+                      >
+                        <FiX className="w-4 h-4" />
+                      </button>
+                      {item.file.type.startsWith('video/') ? (
+                        <video
+                          src={item.preview}
+                          controls
+                          className="w-full h-40 object-cover rounded-lg bg-black"
+                        />
+                      ) : (
+                        <img
+                          src={item.preview}
+                          alt={item.titulo}
+                          className="w-full h-40 object-cover rounded-lg"
+                        />
+                      )}
+                    </div>
                     <input
                       value={item.titulo}
                       onChange={(event) => handleSelectedFileChange(item.id, 'titulo', event.target.value)}
